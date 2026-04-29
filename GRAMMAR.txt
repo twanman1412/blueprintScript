@@ -1,0 +1,69 @@
+/* --- Top Level Statements --- */
+Program ::= (BlueprintDecl | MethodDecl | MethodCall)*
+
+/* --- Types --- */
+Type ::= "i32" | "bool" | "void"
+
+/* --- Blueprint Specification --- */
+BlueprintDecl ::= "blueprint" Identifier "{"
+                    "input:" ParamMapList ";"
+                    "output:" Type ";"
+                    (DefaultClause)*
+                    (RequiresClause)*
+                    (EnsuresClause)*
+                  "}"
+
+ParamMapList ::= (Identifier ":" Type ("," Identifier ":" Type)*)?
+
+DefaultClause  ::= "default:" Expression "==>" Expression ";"
+RequiresClause ::= "requires:" Expression ";"
+EnsuresClause  ::= "ensures:" Expression ";"
+
+/* --- Method Implementation --- */
+MethodDecl ::= "function" Type Identifier "(" MethodParamList ")" Block
+
+MethodParamList ::= (Type Identifier ("," Type Identifier)*)?
+
+/* --- Statements --- */
+Block ::= "{" (Statement)* "}"
+
+Statement ::= VarDeclStmt
+            | AssignStmt
+            | IfStmt
+            | WhileStmt
+            | ReturnStmt
+            | ExprStmt
+
+VarDeclStmt ::= Type Identifier "=" Expression ";"
+AssignStmt  ::= Identifier "=" Expression ";"
+IfStmt      ::= "if" "(" Expression ")" Block ("else" (IfStmt | Block))?
+WhileStmt   ::= "while" "(" Expression ")" Block
+ReturnStmt  ::= "return" Expression? ";"
+ExprStmt    ::= Expression ";"
+
+/* --- Expressions --- */
+Expression ::= LogicalOrExpr
+
+LogicalOrExpr       ::= LogicalAndExpr ("||" LogicalAndExpr)*
+LogicalAndExpr      ::= EqualityExpr ("&&" EqualityExpr)*
+EqualityExpr        ::= RelationalExpr (("==" | "!=") RelationalExpr)*
+RelationalExpr      ::= AdditiveExpr (("<" | "<=" | ">" | ">=") AdditiveExpr)*
+AdditiveExpr        ::= MultiplicativeExpr (("+" | "-") MultiplicativeExpr)*
+MultiplicativeExpr  ::= UnaryExpr (("*" | "/" | "%") UnaryExpr)*
+
+UnaryExpr ::= ("!" | "-") UnaryExpr 
+            | PrimaryExpr
+
+PrimaryExpr ::= IntegerLiteral
+              | BooleanLiteral
+              | Identifier
+              | MethodCall
+              | "(" Expression ")"
+
+MethodCall ::= Identifier "(" ArgList ")"
+ArgList    ::= (Expression ("," Expression)*)?
+
+/* --- Lexical Tokens --- */
+IntegerLiteral ::= [0-9]+
+BooleanLiteral ::= "true" | "false"
+Identifier     ::= [a-zA-Z_][a-zA-Z0-9_]* 
