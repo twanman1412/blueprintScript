@@ -1,0 +1,12 @@
+blueprint fibonacci {
+    input: n: i32;
+    output: i32;
+    default: n == 0 ==> 0;
+    default: n == 1 ==> 1;
+    requires: n >= 0;
+    ensures: fibonacci >= 0;
+}
+
+function i32 fibonacci(i32 n) {
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}

@@ -1,0 +1,23 @@
+blueprint modExp {
+    input: base: i32, exp: i32, mod: i32;
+    output: i32;
+    default: exp == 0 ==> 1;
+    default: base % mod == 0 ==> 0;
+    requires: exp >= 0 && mod > 1;
+    ensures: modExp >= 0 && modExp < mod;
+}
+
+public i32 modExp(i32 base, i32 exp, i32 mod) {
+    i32 result = 1;
+    base = base % mod;
+    
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        exp = exp / 2;
+        base = (base * base) % mod;
+    }
+    
+    return result;
+}
