@@ -33,16 +33,16 @@ class IdentifierExprAST : public ExprAST {
 		std::string name;
 };
 
-class MethodCallExprAST : public ExprAST {
+class FunctionCallExprAST : public ExprAST {
 	public:
-		MethodCallExprAST(const std::string &methodName, std::vector<std::unique_ptr<ExprAST>> arguments)
-			: methodName(methodName), arguments(std::move(arguments)) {}
-		~MethodCallExprAST() = default;
+		FunctionCallExprAST(const std::string &functionName, std::vector<std::unique_ptr<ExprAST>> arguments)
+			: functionName(functionName), arguments(std::move(arguments)) {}
+		~FunctionCallExprAST() = default;
 
-		const std::string &getMethodName() const { return methodName; }
+		const std::string &getFunctionName() const { return functionName; }
 		const std::vector<std::unique_ptr<ExprAST>> &getArguments() const { return arguments; }
 	private:    
-		std::string methodName;
+		std::string functionName;
 		std::vector<std::unique_ptr<ExprAST>> arguments;
 };
 

@@ -1,5 +1,5 @@
 /* --- Top Level Statements --- */
-Program ::= (BlueprintDecl | MethodDecl | MethodCall)*
+Program ::= (BlueprintDecl | FunctionDecl | FunctionCall)*
 
 /* --- Types --- */
 Type ::= "i32" | "bool" | "void"
@@ -19,10 +19,10 @@ DefaultClause  ::= "default:" Expression "==>" Expression ";"
 RequiresClause ::= "requires:" Expression ";"
 EnsuresClause  ::= "ensures:" Expression ";"
 
-/* --- Method Implementation --- */
-MethodDecl ::= "function" Type Identifier "(" MethodParamList ")" Block
+/* --- Function Implementation --- */
+FunctionDecl ::= "function" Type Identifier "(" FunctionParamList ")" Block
 
-MethodParamList ::= (Type Identifier ("," Type Identifier)*)?
+FunctionParamList ::= (Type Identifier ("," Type Identifier)*)?
 
 /* --- Statements --- */
 Block ::= "{" (Statement)* "}"
@@ -32,7 +32,6 @@ Statement ::= VarDeclStmt
             | IfStmt
             | WhileStmt
             | ReturnStmt
-            | ExprStmt
 
 VarDeclStmt ::= Type Identifier "=" Expression ";"
 AssignStmt  ::= Identifier "=" Expression ";"
@@ -57,10 +56,10 @@ UnaryExpr ::= ("!" | "-") UnaryExpr
 PrimaryExpr ::= IntegerLiteral
               | BooleanLiteral
               | Identifier
-              | MethodCall
+              | FunctionCall
               | "(" Expression ")"
 
-MethodCall ::= Identifier "(" ArgList ")"
+FunctionCall ::= Identifier "(" ArgList ")"
 ArgList    ::= (Expression ("," Expression)*)?
 
 /* --- Lexical Tokens --- */
