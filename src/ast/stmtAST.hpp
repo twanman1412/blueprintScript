@@ -91,3 +91,14 @@ class ExprStmtAST : public StmtAST {
 		std::unique_ptr<ExprAST> expr;
 };
 
+
+class PrintStmtAST : public StmtAST {
+	public:
+		PrintStmtAST(std::unique_ptr<ExprAST> expr)
+			: expr(std::move(expr)) {}
+
+		ExprAST *getExpr() const { return expr.get(); }
+
+	private:
+		std::unique_ptr<ExprAST> expr;
+};

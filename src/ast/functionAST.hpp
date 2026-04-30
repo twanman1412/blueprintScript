@@ -4,18 +4,14 @@
 #include "programAST.hpp"
 #include "stmtAST.hpp"
 
-class FunctionCallAST: public ProgramAST {
+class PrintAST: public ProgramAST {
 	public:
-		FunctionCallAST(const std::string &functionName, std::vector<std::unique_ptr<ExprAST>> arguments)
-			: functionName(functionName), arguments(std::move(arguments)) {}
-		~FunctionCallAST() = default;
+		PrintAST(std::unique_ptr<ExprAST> value) : value(std::move(value)) {}
+		~PrintAST() = default;
 
-		const std::string &getFunctionName() const { return functionName; }
-		const std::vector<std::unique_ptr<ExprAST>> &getArguments() const { return arguments; }
-
+		const ExprAST *getValue() const { return value.get(); }
 	private:
-		std::string functionName;
-		std::vector<std::unique_ptr<ExprAST>> arguments;
+		std::unique_ptr<ExprAST> value;
 };
 
 class FunctionDeclAST: public ProgramAST {

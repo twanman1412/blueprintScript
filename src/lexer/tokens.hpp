@@ -35,5 +35,8 @@ enum Token : int16_t {
 	tok_if = -60,
 	tok_else = -61,
 	tok_while = -62,
+
+	// Printing
+	tok_print = -70,
 };
 

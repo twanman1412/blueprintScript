@@ -21,3 +21,5 @@ public i32 modExp(i32 base, i32 exp, i32 mod) {
     
     return result;
 }
+
+print(modExp(2, 10, 1000));

@@ -1,5 +1,5 @@
 /* --- Top Level Statements --- */
-Program ::= (BlueprintDecl | FunctionDecl | FunctionCall)*
+Program ::= (BlueprintDecl | FunctionDecl | PrintStmt)*
 
 /* --- Types --- */
 Type ::= "i32" | "bool" | "void"
@@ -32,12 +32,14 @@ Statement ::= VarDeclStmt
             | IfStmt
             | WhileStmt
             | ReturnStmt
+			| PrintStmt
 
 VarDeclStmt ::= Type Identifier "=" Expression ";"
 AssignStmt  ::= Identifier "=" Expression ";"
 IfStmt      ::= "if" "(" Expression ")" Block ("else" (IfStmt | Block))?
 WhileStmt   ::= "while" "(" Expression ")" Block
 ReturnStmt  ::= "return" Expression? ";"
+PrintStmt   ::= "print" "(" Expression ")" ";"
 ExprStmt    ::= Expression ";"
 
 /* --- Expressions --- */

@@ -31,6 +31,9 @@ std::unordered_map<std::string, Token> Lexer::keywords = {
 	{"if", tok_if},
 	{"else", tok_else},
 	{"while", tok_while},
+
+	// Printing
+	{"print", tok_print},
 };
 
 Lexer::Lexer(std::string sourceCode) : source(sourceCode) {
