@@ -16,16 +16,18 @@ class PrintAST: public ProgramAST {
 
 class FunctionDeclAST: public ProgramAST {
 	public:
-		FunctionDeclAST(const std::string &functionName, std::vector<std::unique_ptr<VarDeclStmtAST>> parameters, std::unique_ptr<StmtAST> body)
-			: functionName(functionName), parameters(std::move(parameters)), body(std::move(body)) {}
+		FunctionDeclAST(const std::string &functionName, std::unique_ptr<TypeAST> type, std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> parameters, std::unique_ptr<StmtAST> body)
+			: functionName(functionName), type(std::move(type)), parameters(std::move(parameters)), body(std::move(body)) {}
 		~FunctionDeclAST() = default;
 
 		const std::string &getFunctionName() const { return functionName; }
-		const std::vector<std::unique_ptr<VarDeclStmtAST>> &getParameters() const { return parameters; }
+		const TypeAST *getType() const { return type.get(); }
+		const std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> &getParameters() const { return parameters; }
 		const StmtAST *getBody() const { return body.get(); }
 
 	private:
 		std::string functionName;
-		std::vector<std::unique_ptr<VarDeclStmtAST>> parameters;
+		std::unique_ptr<TypeAST> type;
+		std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> parameters;
 		std::unique_ptr<StmtAST> body;
 };

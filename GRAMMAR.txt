@@ -20,14 +20,13 @@ RequiresClause ::= "requires:" Expression ";"
 EnsuresClause  ::= "ensures:" Expression ";"
 
 /* --- Function Implementation --- */
-FunctionDecl ::= "function" Type Identifier "(" FunctionParamList ")" Block
+FunctionDecl ::= "function" Type Identifier "(" FunctionParamList ")" Statement
 
 FunctionParamList ::= (Type Identifier ("," Type Identifier)*)?
 
 /* --- Statements --- */
-Block ::= "{" (Statement)* "}"
-
-Statement ::= VarDeclStmt
+Statement ::= "{" (Statement)* "}"
+			| VarDeclStmt
             | AssignStmt
             | IfStmt
             | WhileStmt

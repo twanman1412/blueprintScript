@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "commonAST.hpp"
 #include "exprAST.hpp"
@@ -9,6 +10,17 @@
 class StmtAST {
 	public:
 		virtual ~StmtAST() = default;
+};
+
+class BlockStmtAST : public StmtAST {
+	public:
+		BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> statements)
+			: statements(std::move(statements)) {}
+
+		const std::vector<std::unique_ptr<StmtAST>> &getStatements() const { return statements; }
+
+	private:
+		std::vector<std::unique_ptr<StmtAST>> statements;
 };
 
 class VarDeclStmtAST : public StmtAST {
