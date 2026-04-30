@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
 
 int main (int argc, char *argv[]) {
 
@@ -35,6 +36,9 @@ int main (int argc, char *argv[]) {
 			printf("  Identifier Name: %s\n", lexer.getIdentifierName().c_str());
 		}
 	}
+
+	Parser parser(std::move(lexer));
+	parser.parse();
 
 	return 0;
 }
