@@ -10,21 +10,19 @@ class ContractAST {
 		~ContractAST() = default;
 };
 
-class InputAST: ContractAST {
+class InputAST: public ContractAST {
 	public:
-		InputAST(std::unique_ptr<TypeAST> type, const std::string &name)
-			: type(std::move(type)), name(name) {}
+		InputAST(std::unique_ptr<TypeAST> type)
+			: type(std::move(type)) {}
 		~InputAST() = default;
 
 		const TypeAST *getType() const { return type.get(); }
-		const std::string &getName() const { return name; }
 
 	private:
 		std::unique_ptr<TypeAST> type;
-		std::string name;
 };
 
-class OutputAST: ContractAST {
+class OutputAST: public ContractAST {
 	public:
 		OutputAST(std::unique_ptr<TypeAST> type)
 			: type(std::move(type))  {}
@@ -36,7 +34,7 @@ class OutputAST: ContractAST {
 		std::unique_ptr<TypeAST> type;
 };
 
-class RequiresAST: ContractAST {
+class RequiresAST: public ContractAST {
 	public:
 		RequiresAST(std::unique_ptr<ExprAST> condition)
 			: condition(std::move(condition)) {}
@@ -48,7 +46,7 @@ class RequiresAST: ContractAST {
 		std::unique_ptr<ExprAST> condition;
 };
 
-class EnsuresAST: ContractAST {
+class EnsuresAST: public ContractAST {
 	public:
 		EnsuresAST(std::unique_ptr<ExprAST> condition)
 			: condition(std::move(condition)) {}
@@ -60,7 +58,7 @@ class EnsuresAST: ContractAST {
 		std::unique_ptr<ExprAST> condition;
 };
 
-class DefaultAST: ContractAST {
+class DefaultAST: public ContractAST {
 	public:
 		DefaultAST(std::unique_ptr<ExprAST> condition, std::unique_ptr<ExprAST> value)
 			: condition(std::move(condition)), value(std::move(value)) {}
@@ -74,7 +72,7 @@ class DefaultAST: ContractAST {
 		std::unique_ptr<ExprAST> value;
 };
 
-class BlueprintAST: ProgramAST {
+class BlueprintAST: public ProgramAST {
 	public:
 		BlueprintAST(const std::string &name, std::vector<std::unique_ptr<ContractAST>> contracts)
 			: name(name), contracts(std::move(contracts)) {}
