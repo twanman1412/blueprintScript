@@ -54,6 +54,7 @@ int16_t Lexer::getNextToken() {
 		lastChar = this->getchar();
 
 	if (lastChar == EOF) {
+		this->currentToken = tok_eof;
 		return tok_eof;
 	}
 
