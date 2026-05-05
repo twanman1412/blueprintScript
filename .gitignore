@@ -17,3 +17,6 @@ BlueprintScript
 
 # Ignore temporary files
 tmp/
+
+# Ignore build directory
+build/
