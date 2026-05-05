@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "exprAST.hpp"
 #include "programAST.hpp"
 #include "stmtAST.hpp"
@@ -10,6 +12,7 @@ class PrintAST: public ProgramAST {
 		~PrintAST() = default;
 
 		const ExprAST *getValue() const { return value.get(); }
+		void printAST() const override { std::cout << "(Print "; value->printAST(); std::cout << ")"; }
 	private:
 		std::unique_ptr<ExprAST> value;
 };
@@ -24,6 +27,19 @@ class FunctionDeclAST: public ProgramAST {
 		const TypeAST *getType() const { return type.get(); }
 		const std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> &getParameters() const { return parameters; }
 		const StmtAST *getBody() const { return body.get(); }
+		void printAST() const override {
+			std::cout << "(FunctionDecl " << functionName << ' ';
+			if (type) type->printAST(); else std::cout << "(Type VOID)";
+			std::cout << " (Params";
+			for (const auto &p : parameters) {
+				std::cout << ' ' << '(' << p.first << ' ';
+				if (p.second) p.second->printAST();
+				std::cout << ')';
+			}
+			std::cout << ") ";
+			if (body) body->printAST(); else std::cout << "(Body)";
+			std::cout << ")";
+		}
 
 	private:
 		std::string functionName;

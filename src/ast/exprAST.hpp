@@ -1,18 +1,22 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <memory>
 #include <vector>
+#include <ostream>
 
 class ExprAST {
 	public:
 		virtual ~ExprAST() = default;
+		virtual void printAST() const = 0;
 };
 
 class IntegerExprAST : public ExprAST {
 	public:
 		IntegerExprAST(long long value) : value(value) {}
 		long long getValue() const { return value; }
+		void printAST() const override { std::cout << "(IntegerExpr " << value << ")"; }
 	private:
 		long long value;
 };
@@ -21,6 +25,7 @@ class BoolExprAST : public ExprAST {
 	public:
 		BoolExprAST(bool value) : value(value) {}
 		bool getValue() const { return value; }
+		void printAST() const override { std::cout << "(BoolExpr " << (value ? "true" : "false") << ")"; }
 	private:
 		bool value;
 };
@@ -29,6 +34,7 @@ class IdentifierExprAST : public ExprAST {
 	public:
 		IdentifierExprAST(const std::string &name) : name(name) {}
 		const std::string &getName() const { return name; }
+		void printAST() const override { std::cout << "(Identifier " << name << ")"; }
 	private:
 		std::string name;
 };
@@ -41,6 +47,11 @@ class FunctionCallExprAST : public ExprAST {
 
 		const std::string &getFunctionName() const { return functionName; }
 		const std::vector<std::unique_ptr<ExprAST>> &getArguments() const { return arguments; }
+		void printAST() const override {
+			std::cout << "(FunctionCall " << functionName;
+			for (const auto &arg : arguments) { std::cout << ' '; arg->printAST(); }
+			std::cout << ")";
+		}
 	private:    
 		std::string functionName;
 		std::vector<std::unique_ptr<ExprAST>> arguments;
@@ -66,15 +77,24 @@ class BinaryExprAST : public ExprAST {
 		};
 
 
-		BinaryExprAST(int op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs)
+		BinaryExprAST(Operator op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs)
 			: op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
 
-		int getOp() const { return op; }
+		Operator getOp() const { return op; }
 		ExprAST *getLHS() const { return lhs.get(); }
 		ExprAST *getRHS() const { return rhs.get(); }
+		void printAST() const override {
+			const char *ops[] = {"+","-","*","/","%","==","!=","<","<=",">",">=","&&","||"};
+			const char *opstr = (static_cast<int>(op) >= 0 && static_cast<int>(op) < (int)(sizeof(ops)/sizeof(ops[0]))) ? ops[static_cast<int>(op)] : "?";
+			std::cout << "(BinaryExpr " << opstr << ' ';
+			lhs->printAST();
+			std::cout << ' ';
+			rhs->printAST();
+			std::cout << ")";
+		}
 
 	private:
-		int op;
+		Operator op;
 		std::unique_ptr<ExprAST> lhs;
 		std::unique_ptr<ExprAST> rhs;
 };
@@ -86,14 +106,21 @@ class UnaryExprAST : public ExprAST {
 			NOT,
 		};
 
-		UnaryExprAST(int op, std::unique_ptr<ExprAST> operand)
+		UnaryExprAST(Operator op, std::unique_ptr<ExprAST> operand)
 			: op(op), operand(std::move(operand)) {}
 
-		int getOp() const { return op; }
+		Operator getOp() const { return op; }
 		ExprAST *getOperand() const { return operand.get(); }
+		void printAST() const override {
+			const char *ops[] = {"-","!"};
+			const char *opstr = (static_cast<int>(op) >= 0 && static_cast<int>(op) < (int)(sizeof(ops)/sizeof(ops[0]))) ? ops[static_cast<int>(op)] : "?";
+			std::cout << "(UnaryExpr " << opstr << ' ';
+			operand->printAST();
+			std::cout << ")";
+		}
 
 	private:
-		int op;
+		Operator op;
 		std::unique_ptr<ExprAST> operand;
 };
 

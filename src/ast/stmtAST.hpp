@@ -10,6 +10,7 @@
 class StmtAST {
 	public:
 		virtual ~StmtAST() = default;
+		virtual void printAST() const = 0;
 };
 
 class BlockStmtAST : public StmtAST {
@@ -18,6 +19,11 @@ class BlockStmtAST : public StmtAST {
 			: statements(std::move(statements)) {}
 
 		const std::vector<std::unique_ptr<StmtAST>> &getStatements() const { return statements; }
+		void printAST() const override {
+			std::cout << "(Block";
+			for (const auto &s : statements) { std::cout << ' '; s->printAST(); }
+			std::cout << ")";
+		}
 
 	private:
 		std::vector<std::unique_ptr<StmtAST>> statements;
@@ -31,6 +37,13 @@ class VarDeclStmtAST : public StmtAST {
 		const TypeAST *getType() const { return type.get(); }
 		const std::string &getName() const { return name; }
 		ExprAST *getInitializer() const { return initializer.get(); }
+		void printAST() const override {
+			std::cout << "(VarDecl ";
+			type->printAST();
+			std::cout << ' ' << name;
+			if (initializer) { std::cout << ' '; initializer->printAST(); }
+			std::cout << ")";
+		}
 
 	private:
 		std::unique_ptr<TypeAST> type;
@@ -45,6 +58,11 @@ class AssignmentStmtAST : public StmtAST {
 
 		const std::string &getName() const { return name; }
 		ExprAST *getValue() const { return value.get(); }
+		void printAST() const override {
+			std::cout << "(Assignment " << name << ' ';
+			value->printAST();
+			std::cout << ")";
+		}
 
 	private:
 		std::string name;
@@ -61,6 +79,14 @@ class IfStmtAST : public StmtAST {
 		ExprAST *getCondition() const { return condition.get(); }
 		StmtAST *getThenStmt() const { return thenStmt.get(); }
 		StmtAST *getElseStmt() const { return elseStmt.get(); }
+		void printAST() const override {
+			std::cout << "(If ";
+			condition->printAST();
+			std::cout << ' ';
+			thenStmt->printAST();
+			if (elseStmt) { std::cout << ' '; elseStmt->printAST(); }
+			std::cout << ")";
+		}
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -75,6 +101,13 @@ class WhileStmtAST : public StmtAST {
 
 		ExprAST *getCondition() const { return condition.get(); }
 		StmtAST *getBody() const { return body.get(); }
+		void printAST() const override {
+			std::cout << "(While ";
+			condition->printAST();
+			std::cout << ' ';
+			body->printAST();
+			std::cout << ")";
+		}
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -87,10 +120,16 @@ class ReturnStmtAST : public StmtAST {
 			: value(std::move(value)) {}
 
 		ExprAST *getValue() const { return value.get(); }
+		void printAST() const override {
+			std::cout << "(Return ";
+			if (value) value->printAST();
+			std::cout << ")";
+		}
 
 	private:
 		std::unique_ptr<ExprAST> value;
 };
+
 
 class ExprStmtAST : public StmtAST {
 	public:
@@ -98,6 +137,7 @@ class ExprStmtAST : public StmtAST {
 			: expr(std::move(expr)) {}
 
 		ExprAST *getExpr() const { return expr.get(); }
+		void printAST() const override { std::cout << "(ExprStmt "; expr->printAST(); std::cout << ")"; }
 
 	private:
 		std::unique_ptr<ExprAST> expr;
@@ -110,6 +150,7 @@ class PrintStmtAST : public StmtAST {
 			: expr(std::move(expr)) {}
 
 		ExprAST *getExpr() const { return expr.get(); }
+		void printAST() const override { std::cout << "(PrintStmt "; expr->printAST(); std::cout << ")"; }
 
 	private:
 		std::unique_ptr<ExprAST> expr;

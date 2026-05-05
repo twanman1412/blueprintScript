@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "commonAST.hpp"
@@ -10,6 +11,7 @@ class ContractAST {
 	public:
 		ContractAST() = default;
 		~ContractAST() = default;
+		virtual void printAST() const = 0;
 };
 
 class InputAST: public ContractAST {
@@ -21,6 +23,15 @@ class InputAST: public ContractAST {
 		~InputAST() = default;
 
 		const std::vector<InputParam> &getParams() const { return params; }
+		void printAST() const override {
+			std::cout << "(Input";
+			for (const auto &param : params) {
+				std::cout << " (" << param.first << " ";
+				param.second->printAST();
+				std::cout << ")";
+			}
+			std::cout << ")";
+		}
 
 	private:
 		std::vector<InputParam> params;
@@ -33,6 +44,7 @@ class OutputAST: public ContractAST {
 		~OutputAST() = default;
 
 		const TypeAST *getType() const { return type.get(); }
+		void printAST() const override { std::cout << "(Output "; type->printAST(); std::cout << ")"; }
 
 	private:
 		std::unique_ptr<TypeAST> type;
@@ -45,6 +57,7 @@ class RequiresAST: public ContractAST {
 		~RequiresAST() = default;
 
 		const ExprAST *getCondition() const { return condition.get(); }
+		void printAST() const override { std::cout << "(Requires "; condition->printAST(); std::cout << ")"; }
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -57,6 +70,7 @@ class EnsuresAST: public ContractAST {
 		~EnsuresAST() = default;
 
 		const ExprAST *getCondition() const { return condition.get(); }
+		void printAST() const override { std::cout << "(Ensures "; condition->printAST(); std::cout << ")"; }
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -70,6 +84,13 @@ class DefaultAST: public ContractAST {
 
 		const ExprAST *getCondition() const { return condition.get(); }
 		const ExprAST *getValue() const { return value.get(); }
+		void printAST() const override {
+			std::cout << "(Default ";
+			if (condition) { condition->printAST(); }
+			std::cout << ' ';
+			if (value) { value->printAST(); }
+			std::cout << ")";
+		}
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -84,6 +105,11 @@ class BlueprintAST: public ProgramAST {
 
 		const std::string &getName() const { return name; }
 		const std::vector<std::unique_ptr<ContractAST>> &getContracts() const { return contracts; }
+		void printAST() const override {
+			std::cout << "(Blueprint " << name;
+			for (const auto &c : contracts) { std::cout << ' '; c->printAST(); }
+			std::cout << ")";
+		}
 
 	private:
 		const std::string name;
