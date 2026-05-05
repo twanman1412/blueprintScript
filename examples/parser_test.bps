@@ -1,0 +1,84 @@
+blueprint emptyInputs {
+    input: ;
+    output: void;
+    requires: true;
+    ensures: false;
+}
+
+blueprint grammarCoverage {
+    input: first: i32, second: bool, third: void;
+    output: i32;
+    default: first == 0 ==> 1;
+    default: second == true ==> first + 1;
+    requires: (first < 10) && second || first != 3;
+    ensures: (first + 1) * (first - 2) / 3 % 4 >= 0;
+}
+
+function i32 emptyCall() {
+    return 0;
+}
+
+function i32 sum3(i32 a, i32 b, i32 c) {
+    return a + b + c;
+}
+
+function i32 identity(i32 value) return value;
+
+function void emptyBlock() {}
+
+function void singlePrint() print(1 + 2);
+
+function void statementCoverage(i32 intParam, bool boolParam) {
+    intParam = intParam + 1;
+    print(intParam);
+    if (intParam < 10) {
+        print(intParam);
+    } else if (boolParam == true) {
+        while (intParam != 0) {
+            intParam = intParam - 1;
+            print(intParam);
+        }
+    } else {
+        {
+            print(boolParam);
+        }
+    }
+    return;
+}
+
+function i32 expressionCoverage(i32 x, i32 y, bool flag) {
+    i32 total = 1;
+    bool seen = !flag;
+    total = total * (x + 2) / 3 % 4;
+    total = total + x - y;
+    total = sum3(total, x, y);
+    print(total);
+    return total;
+}
+
+function i32 callCoverage() {
+    i32 a = emptyCall();
+    i32 b = sum3(1, 2, 3);
+    i32 c = identity((a + b) * 2);
+    print(sum3(a, b, c));
+    return sum3(a, b, c);
+}
+
+print(0);
+print(true);
+print(false);
+print(identity(1));
+print(emptyCall());
+print(sum3(1, 2, 3));
+print((1 + 2) * 3 / 4 % 5);
+print(1 + 2 - 3);
+print(1 * 2 / 3 % 4);
+print(1 == 2);
+print(1 != 2);
+print(1 < 2);
+print(1 <= 2);
+print(2 > 1);
+print(2 >= 1);
+print(true && false || true);
+print(!false);
+print(-1);
