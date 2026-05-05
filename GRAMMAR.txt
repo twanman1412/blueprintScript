@@ -2,7 +2,8 @@
 Program ::= (BlueprintDecl | FunctionDecl | PrintStmt)*
 
 /* --- Types --- */
-Type ::= "i32" | "bool" | "void"
+ParamType ::= "i32" | "bool"
+Type ::= ParamType | "void"
 
 /* --- Blueprint Specification --- */
 BlueprintDecl ::= "blueprint" Identifier "{"
@@ -39,7 +40,6 @@ IfStmt      ::= "if" "(" Expression ")" Block ("else" (IfStmt | Block))?
 WhileStmt   ::= "while" "(" Expression ")" Block
 ReturnStmt  ::= "return" Expression? ";"
 PrintStmt   ::= "print" "(" Expression ")" ";"
-ExprStmt    ::= Expression ";"
 
 /* --- Expressions --- */
 Expression ::= LogicalOrExpr
