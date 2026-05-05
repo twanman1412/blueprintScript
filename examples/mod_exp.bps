@@ -7,7 +7,7 @@ blueprint modExp {
     ensures: modExp >= 0 && modExp < mod;
 }
 
-public i32 modExp(i32 base, i32 exp, i32 mod) {
+function i32 modExp(i32 base, i32 exp, i32 mod) {
     i32 result = 1;
     base = base % mod;
     
