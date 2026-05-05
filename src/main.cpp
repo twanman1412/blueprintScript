@@ -1,44 +1,63 @@
+#include <cstring>
 #include <fstream>
 
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
+#include "logger.hpp"
 
 int main (int argc, char *argv[]) {
 
-	if (argc < 2) {
-		printf("Usage: %s <source-file>\n", argv[0]);
+	bool verbose = false;
+	bool showHelp = false;
+	char sourceFile[256] = {0};
+
+	for (int i = 1; i < argc; ++i) {
+		std::string arg = argv[i];
+		if (arg == "-h" || arg == "--help") {
+			showHelp = true;
+		} else if (arg == "-v" || arg == "--verbose") {
+			verbose = true;
+		} else {
+			if (sourceFile[0] != '\0') {
+				printf("Error: Multiple source files specified. Only one is allowed.\n");
+				return 1;
+			}
+			strcpy(sourceFile, argv[i]);
+		}
+	}
+
+	if (argc < 2 || showHelp || sourceFile[0] == '\0') {
+		printf("Usage: %s [options] <source-file>\n", argv[0]);
+		printf("\t Options:\n");
+		printf("\t\t -h, --help\t\t Show this help message\n");
+		printf("\t\t -v, --verbose\t\t Enable verbose output\n");
+		printf("\n");
 		return 1;
 	}
+
+	logger.set_debug(verbose);
+	logger.infof("Compiling source file: %s\n", sourceFile);
+	logger.debug("Verbose mode enabled.\n");
 
 	// Read the source file
 	std::string sourceCode;
 	{
-		std::ifstream file(argv[1]);
+		std::ifstream file(sourceFile);
 		if (!file.is_open()) {
-			printf("Error: Could not open file %s\n", argv[1]);
+			printf("Error: Could not open file %s\n", sourceFile);
 			return 1;
 		}
 		sourceCode.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	}
 
-	// Initialize the lexer
 	Lexer lexer(sourceCode);
+	Parser parser(lexer);
+	const auto AST = parser.parse();
 
-	// Tokenize the source code
-	int16_t token;
-	while ((token = lexer.getNextToken()) != tok_eof) {
-		printf("Token: %d\n", token);
-		if (token == tok_integer_literal) {
-			printf("  Integer Value: %ld\n", lexer.getIntegerValue());
-		} else if (token == tok_true || token == tok_false) {
-			printf("  Boolean Value: %s\n", lexer.getBoolValue() ? "true" : "false");
-		} else if (token == tok_identifier) {
-			printf("  Identifier Name: %s\n", lexer.getIdentifierName().c_str());
-		}
+	if (!verbose) return 0;
+	for (const auto &node : AST) {
+		node->printAST();
 	}
-
-	Parser parser(std::move(lexer));
-	parser.parse();
 
 	return 0;
 }

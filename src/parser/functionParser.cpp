@@ -1,53 +1,55 @@
-#include <iostream>
 #include <memory>
 
 #include "parser.hpp"
 #include "../ast/functionAST.hpp"
+#include "../logger.hpp"
 
 std::unique_ptr<FunctionDeclAST> Parser::parseFunctionDecl() {
-	lexer.getNextToken();
+	logger.debug("Parsing function declaration...\n");
+	lexer.getNextToken(); // consume 'function'
 
 	if (lexer.getCurrentToken() != tok_i32 && lexer.getCurrentToken() != tok_bool && lexer.getCurrentToken() != tok_void) {
-		std::cerr << "Expected return type for function declaration, got: " << lexer.getCurrentToken() << std::endl;
+		logger.errorf("Expected return type for function declaration, got: %d\n", lexer.getCurrentToken());
 		return nullptr;
 	}
 	auto returnType = parseType();
-	lexer.getNextToken();
 
 	if (lexer.getCurrentToken() != tok_identifier) {
-		std::cerr << "Expected function name, got: " << lexer.getCurrentToken() << std::endl;
+		logger.errorf("Expected function name, got: %d\n", lexer.getCurrentToken());
 		return nullptr;
 	}
 	std::string functionName = lexer.getIdentifierName();
 	lexer.getNextToken();
 
+	logger.debugf("Parsing function '%s'\n", functionName.c_str());
 	if (lexer.getCurrentToken() != '(') {
-		std::cerr << "Expected '(', got: " << lexer.getCurrentToken() << std::endl;
+		logger.errorf("Expected '(' after function name, got: %d\n", lexer.getCurrentToken());
 		return nullptr;
 	}
 	lexer.getNextToken();
 
+	logger.debugf("Parsing parameters for function '%s'...\n", functionName.c_str());
 	std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> parameters;
 	while (lexer.getCurrentToken() != ')') {
 		if (lexer.getCurrentToken() != tok_i32 && lexer.getCurrentToken() != tok_bool) {
-			std::cerr << "Expected parameter type, got: " << lexer.getCurrentToken() << std::endl;
+			logger.errorf("Expected parameter type in function declaration, got: %d\n", lexer.getCurrentToken());
 			return nullptr;
 		}
 		auto paramType = parseType();
-		lexer.getNextToken();
 
 		if (lexer.getCurrentToken() != tok_identifier) {
-			std::cerr << "Expected parameter name, got: " << lexer.getCurrentToken() << std::endl;
+			logger.errorf("Expected parameter name in function declaration, got: %d\n", lexer.getCurrentToken());
 			return nullptr;
 		}
 		std::string paramName = lexer.getIdentifierName();
+		logger.debugf("Parsed parameter '%s'\n", paramName.c_str());
 		lexer.getNextToken();
 
 		parameters.emplace_back(paramName, std::move(paramType));
 		if (lexer.getCurrentToken() == ',') {
 			lexer.getNextToken();
 		} else if (lexer.getCurrentToken() != ')') {
-			std::cerr << "Expected ',' or ')', got: " << lexer.getCurrentToken() << std::endl;
+			logger.errorf("Expected ',' or ')' after parameter in function declaration, got: %d\n", lexer.getCurrentToken());
 			return nullptr;
 		}
 	}

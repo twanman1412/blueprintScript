@@ -1,68 +1,74 @@
-#include <iostream>
-
 #include "parser.hpp"
 #include "../lexer/tokens.hpp"
+#include "../logger.hpp"
 
-void Parser::parse() {
+std::vector<std::unique_ptr<ProgramAST>> Parser::parse() {
+	// Initialize the lexer to get the first token
+	lexer.getNextToken();
+	logger.debugln("Starting parsing process...");
 
-	std::vector<std::unique_ptr<BlueprintAST>> blueprintDecls;
-	std::vector<std::unique_ptr<FunctionDeclAST>> functionDecls;
-	std::vector<std::unique_ptr<PrintAST>> printStmts;
+	std::vector<std::unique_ptr<ProgramAST>> astNodes;
 
 	while (lexer.getCurrentToken() != tok_eof) {
 		if (lexer.getCurrentToken() == tok_print) {
-			printStmts.push_back(parsePrint());
+			logger.debugln("Parsing top level print statement...");
+			astNodes.push_back(std::move(parsePrint()));
 		} else if (lexer.getCurrentToken() == tok_blueprint) {
-			blueprintDecls.push_back(parseBlueprint());
+			logger.debugln("Parsing blueprint...");
+			astNodes.push_back(parseBlueprint());
 		} else if (lexer.getCurrentToken() == tok_function) {
-			functionDecls.push_back(parseFunctionDecl());
+			logger.debugln("Parsing function declaration...");
+			astNodes.push_back(parseFunctionDecl());
 		} else {
-			std::cerr << "Unexpected token: " << lexer.getCurrentToken() << std::endl;
+			logger.errorf("Unexpected token: %d\n", lexer.getCurrentToken());
 			break;
 		}
 	}
 
-	for (const auto& blueprint : blueprintDecls) {
-		for (const auto& otherBlueprint : blueprintDecls) {
-			if (otherBlueprint.get() != blueprint.get() && otherBlueprint->getName() == blueprint->getName()) {
-				std::cerr << "Duplicate blueprint declaration: " << blueprint->getName() << std::endl;
-			}
-		}
-	}
-
-	for (const auto& functionDecl : functionDecls) {
-		for (const auto& otherFunction : functionDecls) {
-			if (otherFunction.get() != functionDecl.get() && otherFunction->getFunctionName() == functionDecl->getFunctionName()) {
-				std::cerr << "Duplicate function declaration: " << functionDecl->getFunctionName() << std::endl;
-			}
-		}
-
-		for (const auto& blueprint : blueprintDecls) {
-			if (blueprint->getName() == functionDecl->getFunctionName()) {
-				std::cout << "Blueprint found for function: " << functionDecl->getFunctionName() << std::endl;
-			}
-		}
-	}
+	logger.debugln("Finished parsing process.");
+	return astNodes;
 }
 
 std::unique_ptr<PrintAST> Parser::parsePrint() {
+	logger.debugln("Parsing top level print statement...");
 	lexer.getNextToken();
+	if (lexer.getCurrentToken() != '(') {
+		logger.errorf("Expected '(' after 'print', got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+
 	auto value = parseExpression();
+	if (lexer.getCurrentToken() != ')') {
+		logger.errorf("Expected ')' after print expression, got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+	if (lexer.getCurrentToken() != ';') {
+		logger.errorf("Expected ';' after top level print statement, got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+	logger.debug("Finished parsing print statement.");
 	return std::make_unique<PrintAST>(std::move(value));
 }
 
 std::unique_ptr<TypeAST> Parser::parseType() {
+	logger.debugln("Parsing type...");
 	if (lexer.getCurrentToken() == tok_i32) {
 		lexer.getNextToken();
+		logger.debugln("Finished parsing type: int32");
 		return std::make_unique<TypeAST>(TypeAST::PrimitiveKind::INT32);
 	} else if (lexer.getCurrentToken() == tok_bool) {
 		lexer.getNextToken();
+		logger.debugln("Finished parsing type: bool");
 		return std::make_unique<TypeAST>(TypeAST::PrimitiveKind::BOOL);
 	} else if (lexer.getCurrentToken() == tok_void) {
 		lexer.getNextToken();
+		logger.debugln("Finished parsing type: void");
 		return std::make_unique<TypeAST>(TypeAST::PrimitiveKind::VOID);
 	} else {
-		std::cerr << "Unknown type: " << lexer.getCurrentToken() << std::endl;
+		logger.errorf("Unexpected token while parsing type: %d\n", lexer.getCurrentToken());
 		return nullptr;
 	}
 }

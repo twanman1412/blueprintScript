@@ -13,7 +13,7 @@ class Parser {
 		Parser(Lexer lexer) : lexer(std::move(lexer)) {}
 		~Parser() = default;
 
-		void parse();
+		std::vector<std::unique_ptr<ProgramAST>> parse();
 		int getTokenPrecedence();
 
 		std::unique_ptr<PrintAST> parsePrint();
@@ -27,7 +27,7 @@ class Parser {
 		std::unique_ptr<ExprAST> parseUnaryExpression();
 
 		std::unique_ptr<ExprAST> parsePrimaryExpression();
-		std::unique_ptr<FunctionCallExprAST> parseFunctionCallExpr();
+		std::unique_ptr<FunctionCallExprAST> parseFunctionCallExpr(const std::string &functionName);
 		std::unique_ptr<ExprAST> parseParenExpression();
 
 		std::unique_ptr<FunctionDeclAST> parseFunctionDecl();

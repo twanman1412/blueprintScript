@@ -118,6 +118,79 @@ int16_t Lexer::getNextToken() {
 		return this->currentToken;
 	}
 
+	// Handle potential multi-character operators
+	if (lastChar == '|') {
+		char nextChar = this->getchar();
+		if (nextChar == '|') {
+			this->currentToken = static_cast<int16_t>(tok_logical_or);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
+	if (lastChar == '&') {
+		char nextChar = this->getchar();
+		if (nextChar == '&') {
+			this->currentToken = static_cast<int16_t>(tok_logical_and);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
+	if (lastChar == '=' ) {
+		char nextChar = this->getchar();
+		if (nextChar == '=') {
+			char nextNextChar = this->getchar();
+			if (nextNextChar == '>') {
+				this->currentToken = static_cast<int16_t>(tok_default_arrow);
+				return this->currentToken;
+			}
+			ungetCurrentToken();
+			this->currentToken = static_cast<int16_t>(tok_eq);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
+	if (lastChar == '!') {
+		char nextChar = this->getchar();
+		if (nextChar == '=') {
+			this->currentToken = static_cast<int16_t>(tok_ne);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
+	if (lastChar == '<') {
+		char nextChar = this->getchar();
+		if (nextChar == '=') {
+			this->currentToken = static_cast<int16_t>(tok_le);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
+	if (lastChar == '>') {
+		char nextChar = this->getchar();
+		if (nextChar == '=') {
+			this->currentToken = static_cast<int16_t>(tok_ge);
+			return this->currentToken;
+		}
+		ungetCurrentToken();
+		this->currentToken = lastChar;
+		return this->currentToken;
+	}
+
 	this->currentToken = lastChar;
 	return lastChar;
 }

@@ -30,6 +30,7 @@ enum Token : int16_t {
 	tok_requires = -53,
 	tok_ensures = -54,
 	tok_default = -55,
+	tok_default_arrow = -56, // ==>
 
 	// Control flow
 	tok_if = -60,
@@ -38,5 +39,15 @@ enum Token : int16_t {
 
 	// Printing
 	tok_print = -70,
+};
+
+// Operator tokens
+enum OperatorToken : int16_t {
+    tok_logical_or = -80, // ||
+    tok_logical_and = -81, // &&
+    tok_eq = -82, // ==
+    tok_ne = -83, // !=
+    tok_le = -84, // <=
+    tok_ge = -85, // >=
 };
 
