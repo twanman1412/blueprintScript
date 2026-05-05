@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "commonAST.hpp"
 #include "exprAST.hpp"
 #include "programAST.hpp"
@@ -12,14 +14,16 @@ class ContractAST {
 
 class InputAST: public ContractAST {
 	public:
-		InputAST(std::unique_ptr<TypeAST> type)
-			: type(std::move(type)) {}
+		using InputParam = std::pair<std::string, std::unique_ptr<TypeAST>>;
+
+		InputAST(std::vector<InputParam> params)
+			: params(std::move(params)) {}
 		~InputAST() = default;
 
-		const TypeAST *getType() const { return type.get(); }
+		const std::vector<InputParam> &getParams() const { return params; }
 
 	private:
-		std::unique_ptr<TypeAST> type;
+		std::vector<InputParam> params;
 };
 
 class OutputAST: public ContractAST {
