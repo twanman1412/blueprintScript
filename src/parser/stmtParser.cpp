@@ -167,6 +167,11 @@ std::unique_ptr<ReturnStmtAST> Parser::parseReturnStatement() {
 	}
 	lexer.getNextToken();
 
+	if (lexer.getCurrentToken() == ';') {
+		logger.debug("Parsing return statement with no value...\n");
+		lexer.getNextToken();
+		return std::make_unique<ReturnStmtAST>(nullptr);
+	}
 	auto value = parseExpression();
 
 	if (lexer.getCurrentToken() != ';') {
