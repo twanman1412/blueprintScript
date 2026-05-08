@@ -13,6 +13,7 @@ class PrintAST: public ProgramAST {
 
 		const ExprAST *getValue() const { return value.get(); }
 		void printAST() const override { std::cout << "(Print "; value->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 	private:
 		std::unique_ptr<ExprAST> value;
 };
@@ -40,6 +41,7 @@ class FunctionDeclAST: public ProgramAST {
 			if (body) body->printAST(); else std::cout << "(Body)";
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::string functionName;

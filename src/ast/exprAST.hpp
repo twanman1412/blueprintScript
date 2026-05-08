@@ -6,10 +6,13 @@
 #include <vector>
 #include <ostream>
 
+class AnalysisContext;
+
 class ExprAST {
 	public:
 		virtual ~ExprAST() = default;
 		virtual void printAST() const = 0;
+		virtual bool checkNode(AnalysisContext &ctx) = 0;
 };
 
 class IntegerExprAST : public ExprAST {
@@ -17,6 +20,7 @@ class IntegerExprAST : public ExprAST {
 		IntegerExprAST(long long value) : value(value) {}
 		long long getValue() const { return value; }
 		void printAST() const override { std::cout << "(IntegerExpr " << value << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 	private:
 		long long value;
 };
@@ -26,6 +30,7 @@ class BoolExprAST : public ExprAST {
 		BoolExprAST(bool value) : value(value) {}
 		bool getValue() const { return value; }
 		void printAST() const override { std::cout << "(BoolExpr " << (value ? "true" : "false") << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 	private:
 		bool value;
 };
@@ -35,6 +40,7 @@ class IdentifierExprAST : public ExprAST {
 		IdentifierExprAST(const std::string &name) : name(name) {}
 		const std::string &getName() const { return name; }
 		void printAST() const override { std::cout << "(Identifier " << name << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 	private:
 		std::string name;
 };
@@ -52,6 +58,7 @@ class FunctionCallExprAST : public ExprAST {
 			for (const auto &arg : arguments) { std::cout << ' '; arg->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 	private:    
 		std::string functionName;
 		std::vector<std::unique_ptr<ExprAST>> arguments;
@@ -92,6 +99,7 @@ class BinaryExprAST : public ExprAST {
 			rhs->printAST();
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		Operator op;
@@ -118,6 +126,7 @@ class UnaryExprAST : public ExprAST {
 			operand->printAST();
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		Operator op;

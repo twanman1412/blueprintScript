@@ -7,10 +7,13 @@
 #include "commonAST.hpp"
 #include "exprAST.hpp"
 
+class AnalysisContext;
+
 class StmtAST {
 	public:
 		virtual ~StmtAST() = default;
 		virtual void printAST() const = 0;
+	virtual bool checkNode(AnalysisContext &ctx) { (void)ctx; return true; }
 };
 
 class BlockStmtAST : public StmtAST {
@@ -24,6 +27,7 @@ class BlockStmtAST : public StmtAST {
 			for (const auto &s : statements) { std::cout << ' '; s->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::vector<std::unique_ptr<StmtAST>> statements;
@@ -44,6 +48,7 @@ class VarDeclStmtAST : public StmtAST {
 			if (initializer) { std::cout << ' '; initializer->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<TypeAST> type;
@@ -63,6 +68,7 @@ class AssignmentStmtAST : public StmtAST {
 			value->printAST();
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::string name;
@@ -87,6 +93,7 @@ class IfStmtAST : public StmtAST {
 			if (elseStmt) { std::cout << ' '; elseStmt->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -108,6 +115,7 @@ class WhileStmtAST : public StmtAST {
 			body->printAST();
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -125,6 +133,7 @@ class ReturnStmtAST : public StmtAST {
 			if (value) value->printAST();
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> value;
@@ -138,6 +147,7 @@ class ExprStmtAST : public StmtAST {
 
 		ExprAST *getExpr() const { return expr.get(); }
 		void printAST() const override { std::cout << "(ExprStmt "; expr->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> expr;
@@ -151,6 +161,7 @@ class PrintStmtAST : public StmtAST {
 
 		ExprAST *getExpr() const { return expr.get(); }
 		void printAST() const override { std::cout << "(PrintStmt "; expr->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> expr;

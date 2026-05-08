@@ -6,12 +6,16 @@
 #include "commonAST.hpp"
 #include "exprAST.hpp"
 #include "programAST.hpp"
+#include "stmtAST.hpp"
+
+class AnalysisContext;
 
 class ContractAST {
 	public:
 		ContractAST() = default;
 		~ContractAST() = default;
 		virtual void printAST() const = 0;
+		virtual bool checkNode(AnalysisContext &ctx) { (void)ctx; return true; }
 };
 
 class InputAST: public ContractAST {
@@ -32,6 +36,7 @@ class InputAST: public ContractAST {
 			}
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::vector<InputParam> params;
@@ -45,6 +50,7 @@ class OutputAST: public ContractAST {
 
 		const TypeAST *getType() const { return type.get(); }
 		void printAST() const override { std::cout << "(Output "; type->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<TypeAST> type;
@@ -58,6 +64,7 @@ class RequiresAST: public ContractAST {
 
 		const ExprAST *getCondition() const { return condition.get(); }
 		void printAST() const override { std::cout << "(Requires "; condition->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -71,6 +78,7 @@ class EnsuresAST: public ContractAST {
 
 		const ExprAST *getCondition() const { return condition.get(); }
 		void printAST() const override { std::cout << "(Ensures "; condition->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -91,6 +99,7 @@ class DefaultAST: public ContractAST {
 			if (value) { value->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -110,6 +119,7 @@ class BlueprintAST: public ProgramAST {
 			for (const auto &c : contracts) { std::cout << ' '; c->printAST(); }
 			std::cout << ")";
 		}
+		bool checkNode(AnalysisContext &ctx) override;
 
 	private:
 		const std::string name;
