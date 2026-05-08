@@ -50,7 +50,7 @@ class OutputAST: public ContractAST {
 
 		const TypeAST *getType() const { return type.get(); }
 		void printAST() const override { std::cout << "(Output "; type->printAST(); std::cout << ")"; }
-		bool checkNode(AnalysisContext &ctx) override;
+		bool checkNode(AnalysisContext &ctx) override { return true; };
 
 	private:
 		std::unique_ptr<TypeAST> type;

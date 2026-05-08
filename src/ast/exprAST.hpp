@@ -20,7 +20,7 @@ class IntegerExprAST : public ExprAST {
 		IntegerExprAST(long long value) : value(value) {}
 		long long getValue() const { return value; }
 		void printAST() const override { std::cout << "(IntegerExpr " << value << ")"; }
-		bool checkNode(AnalysisContext &ctx) override;
+		bool checkNode(AnalysisContext &ctx) override { return true; }; 
 	private:
 		long long value;
 };
@@ -30,7 +30,7 @@ class BoolExprAST : public ExprAST {
 		BoolExprAST(bool value) : value(value) {}
 		bool getValue() const { return value; }
 		void printAST() const override { std::cout << "(BoolExpr " << (value ? "true" : "false") << ")"; }
-		bool checkNode(AnalysisContext &ctx) override;
+		bool checkNode(AnalysisContext &ctx) override { return true; };
 	private:
 		bool value;
 };
