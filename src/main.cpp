@@ -1,6 +1,7 @@
 #include <cstring>
 #include <fstream>
 
+#include "analysis/semanticValidator.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include "logger.hpp"
@@ -53,6 +54,11 @@ int main (int argc, char *argv[]) {
 	Lexer lexer(sourceCode);
 	Parser parser(lexer);
 	const auto AST = parser.parse();
+
+	SemanticValidator validator(logger);
+	if (!validator.validate(AST)) {
+		return 1;
+	}
 
 	if (!verbose) return 0;
 	for (const auto &node : AST) {
