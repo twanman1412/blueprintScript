@@ -1,0 +1,155 @@
+// ========== BLUEPRINT TESTS ==========
+
+// Test 1: Undeclared variable in contract expression
+blueprint testUndeclaredVariable {
+	input: a: i32;
+	output: i32;
+	default: true ==> a + b; // ERROR: Undefined identifier 'b'
+}
+
+// Test 2: Missing output contract
+blueprint testMissingOutput {
+	input: x: i32;
+	requires: x > 0;
+}
+
+// Test 3: Non-boolean condition in requires
+blueprint testRequiresNonBool {
+	input: a: i32;
+	output: i32;
+	requires: a; // ERROR: requires condition must be BOOL
+}
+
+// Test 4: Non-boolean condition in ensures
+blueprint testEnsuresNonBool {
+	input: a: i32;
+	output: i32;
+	ensures: a; // ERROR: ensures condition must be BOOL
+}
+
+// Test 5: Non-boolean condition in default
+blueprint testDefaultNonBoolCondition {
+	input: a: i32;
+	output: i32;
+	default: a ==> 42; // ERROR: default condition must be BOOL
+}
+
+// Test 6: Valid blueprint with all contracts
+blueprint testValidWithAllContracts {
+	input: x: i32, valid: bool;
+	output: i32;
+	requires: valid;
+	ensures: true;
+	default: valid ==> x;
+}
+
+// Test 7: Multiple inputs correctly used
+blueprint testMultipleInputs {
+	input: a: i32, b: i32;
+	output: i32;
+	default: true ==> a + b;
+}
+
+// Test 8: Type mismatch in arithmetic (result should be INT32)
+blueprint testArithmeticTypes {
+	input: flag: bool;
+	output: i32;
+	default: true ==> flag + 1; // ERROR: Arethmetic operator requires INT32 operands
+}
+
+// ========== FUNCTION TESTS ==========
+
+// Test 9: Wrong return type (bool instead of i32)
+function i32 testWrongReturnType() {
+	return false; // ERROR: Return type mismatch
+}
+
+// Test 10: Correct return type
+function i32 testCorrectReturnType() {
+	return 42;
+}
+
+// Test 11: Bool return with bool expression
+function bool testBoolReturn() {
+	return true;
+}
+
+// Test 12: Using parameters inside function
+function i32 testParameterUsage(i32 x, i32 y) {
+	return x + y;
+}
+
+// Test 13: Variable declaration and usage
+function i32 testVariableDeclaration() {
+	i32 z = 10;
+	return z;
+}
+
+// Test 14: Variable type mismatch in declaration
+function i32 testVarTypeMismatch() {
+	i32 count = true; // ERROR: Varaible 'count' initlializer type mismatch
+	return count;
+}
+
+// Test 15: If statement condition must be bool
+function i32 testIfNonBoolCondition(i32 n) {
+	if (n) {
+		return 1; // ERROR: If condition must be BOOL
+	}
+	return 0;
+}
+
+// Test 16: Valid if statement
+function i32 testValidIf(bool flag, i32 x) {
+	if (flag) {
+		return x;
+	}
+	return 0;
+}
+
+// Test 17: While statement with non-bool condition
+function i32 testWhileNonBool(i32 n) {
+	while (n) {
+		n = n - 1; // ERROR: While condition must be BOOL
+	}
+	return n;
+}
+
+// Test 18: Valid while loop
+function i32 testValidWhile() {
+	i32 i = 5;
+	i32 sum = 0;
+	while (i > 0) {
+		sum = sum + i;
+		i = i - 1;
+	}
+	return sum;
+}
+
+// ========== EXPRESSION TESTS ==========
+
+// Test 19: Function call with wrong argument count
+function i32 testArgCount() {
+	return testParameterUsage(1); // ERROR: Function 'testParameterUsage' expects 2 arguments
+}
+
+// Test 20: Function call with correct arguments
+function i32 testCallCorrect() {
+	return testParameterUsage(5, 3);
+}
+
+// Test 21: Call to non-existent function
+print(thereisnofunctionwiththisname()); // ERROR: Undefined function 'thereisnofunctionwiththisname'
+
+// Test 22: Valid print statement
+print(42);
+
+// Test 23: Logical operators with correct types
+function bool testLogicalOps(bool a, bool b) {
+	return a && b;
+}
+
+// Test 24: Comparison operators
+function bool testComparisons(i32 x, i32 y) {
+	return x < y;
+}
