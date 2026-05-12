@@ -2,6 +2,8 @@
 #include "../lexer/tokens.hpp"
 #include "../logger.hpp"
 
+#include <cstdlib>
+
 std::vector<std::unique_ptr<ProgramAST>> Parser::parse() {
 	// Initialize the lexer to get the first token
 	lexer.getNextToken();
@@ -10,19 +12,27 @@ std::vector<std::unique_ptr<ProgramAST>> Parser::parse() {
 	std::vector<std::unique_ptr<ProgramAST>> astNodes;
 
 	while (lexer.getCurrentToken() != tok_eof) {
+		std::unique_ptr<ProgramAST> node;
 		if (lexer.getCurrentToken() == tok_print) {
 			logger.debugln("Parsing top level print statement...");
-			astNodes.push_back(std::move(parsePrint()));
+			node = parsePrint();
 		} else if (lexer.getCurrentToken() == tok_blueprint) {
 			logger.debugln("Parsing blueprint...");
-			astNodes.push_back(parseBlueprint());
+			node = parseBlueprint();
 		} else if (lexer.getCurrentToken() == tok_function) {
 			logger.debugln("Parsing function declaration...");
-			astNodes.push_back(parseFunctionDecl());
+			node = parseFunctionDecl();
 		} else {
 			logger.errorf("Unexpected token: %d\n", lexer.getCurrentToken());
-			break;
+			std::exit(1);
 		}
+
+		if (!node) {
+			logger.errorln("Error: Failed to parse top level statement");
+			std::exit(1);
+		}
+
+		astNodes.push_back(std::move(node));
 	}
 
 	logger.debugln("Finished parsing process.");
@@ -49,7 +59,7 @@ std::unique_ptr<PrintAST> Parser::parsePrint() {
 		return nullptr;
 	}
 	lexer.getNextToken();
-	logger.debug("Finished parsing print statement.");
+	logger.debugln("Finished parsing print statement.");
 	return std::make_unique<PrintAST>(std::move(value));
 }
 

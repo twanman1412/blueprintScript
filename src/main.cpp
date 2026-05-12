@@ -17,6 +17,7 @@
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include "logger.hpp"
+#include "ast/blueprintAST.hpp"
 
 static std::string getOutputBase(const std::string& sourceFile) {
 	auto lastSlash = sourceFile.find_last_of("/\\");
@@ -95,7 +96,17 @@ int main (int argc, char *argv[]) {
 
 	CodeGenVisitor codegen("blueprint_module");
 	for (auto &node : AST) {
-		node->accept(codegen);
+		if (!node) {
+			logger.errorln("Error: Encountered empty AST node during codegen");
+			return 1;
+		}
+		if (dynamic_cast<BlueprintAST*>(node.get())) {
+			continue;
+		}
+		if (!node->accept(codegen)) {
+			logger.errorln("Error: Code generation failed for a top level node");
+			return 1;
+		}
 	}
 	codegen.finalizeTopLevelFunction();
 
