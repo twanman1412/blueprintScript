@@ -6,6 +6,12 @@
 #include "programAST.hpp"
 #include "stmtAST.hpp"
 
+class CodeGenVisitor;
+
+namespace llvm {
+class Value;
+}
+
 class PrintAST: public ProgramAST {
 	public:
 		PrintAST(std::unique_ptr<ExprAST> value) : value(std::move(value)) {}
@@ -14,6 +20,7 @@ class PrintAST: public ProgramAST {
 		const ExprAST *getValue() const { return value.get(); }
 		void printAST() const override { std::cout << "(Print "; value->printAST(); std::cout << ")"; }
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 	private:
 		std::unique_ptr<ExprAST> value;
 };
@@ -42,6 +49,7 @@ class FunctionDeclAST: public ProgramAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::string functionName;

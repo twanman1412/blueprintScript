@@ -120,6 +120,7 @@ class BlueprintAST: public ProgramAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override { return nullptr; }
 
 	private:
 		const std::string name;

@@ -8,12 +8,18 @@
 #include "exprAST.hpp"
 
 class AnalysisContext;
+class CodeGenVisitor;
+
+namespace llvm {
+class Value;
+}
 
 class StmtAST {
 	public:
 		virtual ~StmtAST() = default;
 		virtual void printAST() const = 0;
 	virtual bool checkNode(AnalysisContext &ctx) { (void)ctx; return true; }
+	virtual llvm::Value* accept(CodeGenVisitor &visitor) = 0;
 };
 
 class BlockStmtAST : public StmtAST {
@@ -28,6 +34,7 @@ class BlockStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::vector<std::unique_ptr<StmtAST>> statements;
@@ -49,6 +56,7 @@ class VarDeclStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<TypeAST> type;
@@ -69,6 +77,7 @@ class AssignmentStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::string name;
@@ -94,6 +103,7 @@ class IfStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -116,6 +126,7 @@ class WhileStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<ExprAST> condition;
@@ -134,6 +145,7 @@ class ReturnStmtAST : public StmtAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<ExprAST> value;
@@ -148,6 +160,7 @@ class ExprStmtAST : public StmtAST {
 		ExprAST *getExpr() const { return expr.get(); }
 		void printAST() const override { std::cout << "(ExprStmt "; expr->printAST(); std::cout << ")"; }
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<ExprAST> expr;
@@ -162,6 +175,7 @@ class PrintStmtAST : public StmtAST {
 		ExprAST *getExpr() const { return expr.get(); }
 		void printAST() const override { std::cout << "(PrintStmt "; expr->printAST(); std::cout << ")"; }
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		std::unique_ptr<ExprAST> expr;

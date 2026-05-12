@@ -7,12 +7,18 @@
 #include <ostream>
 
 class AnalysisContext;
+class CodeGenVisitor;
+
+namespace llvm {
+class Value;
+}
 
 class ExprAST {
 	public:
 		virtual ~ExprAST() = default;
 		virtual void printAST() const = 0;
 		virtual bool checkNode(AnalysisContext &ctx) = 0;
+		virtual llvm::Value* accept(CodeGenVisitor &visitor) = 0;
 };
 
 class IntegerExprAST : public ExprAST {
@@ -21,6 +27,7 @@ class IntegerExprAST : public ExprAST {
 		long long getValue() const { return value; }
 		void printAST() const override { std::cout << "(IntegerExpr " << value << ")"; }
 		bool checkNode(AnalysisContext &ctx) override { return true; }; 
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 	private:
 		long long value;
 };
@@ -31,6 +38,7 @@ class BoolExprAST : public ExprAST {
 		bool getValue() const { return value; }
 		void printAST() const override { std::cout << "(BoolExpr " << (value ? "true" : "false") << ")"; }
 		bool checkNode(AnalysisContext &ctx) override { return true; };
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 	private:
 		bool value;
 };
@@ -41,6 +49,7 @@ class IdentifierExprAST : public ExprAST {
 		const std::string &getName() const { return name; }
 		void printAST() const override { std::cout << "(Identifier " << name << ")"; }
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 	private:
 		std::string name;
 };
@@ -59,6 +68,7 @@ class FunctionCallExprAST : public ExprAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 	private:    
 		std::string functionName;
 		std::vector<std::unique_ptr<ExprAST>> arguments;
@@ -100,6 +110,7 @@ class BinaryExprAST : public ExprAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		Operator op;
@@ -127,6 +138,7 @@ class UnaryExprAST : public ExprAST {
 			std::cout << ")";
 		}
 		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
 
 	private:
 		Operator op;
