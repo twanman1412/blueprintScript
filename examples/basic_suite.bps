@@ -1,0 +1,65 @@
+function i32 add(i32 a, i32 b) {
+    return a + b;
+}
+
+function i32 mulAdd(i32 x, i32 y, i32 z) {
+    i32 tmp = x * y;
+    return tmp + z;
+}
+
+function bool isEven(i32 x) {
+    return (x % 2) == 0;
+}
+
+function i32 sumTo(i32 n) {
+    i32 total = 0;
+    i32 i = 0;
+    while (i <= n) {
+        total = total + i;
+        i = i + 1;
+    }
+    return total;
+}
+
+function i32 max2(i32 a, i32 b) {
+    if (a >= b) {
+        return a;
+    }
+    return b;
+}
+
+function i32 fact(i32 n) {
+    i32 result = 1;
+    i32 i = 2;
+    while (i <= n) {
+        result = result * i;
+        i = i + 1;
+    }
+    return result;
+}
+
+print(add(2, 3));
+print(add(10, 20));
+print(mulAdd(2, 4, 1));
+print(mulAdd(3, 5, 7));
+print(isEven(10));
+print(isEven(9));
+print(sumTo(5));
+print(sumTo(10));
+print(max2(7, 3));
+print(max2(3, 7));
+print(fact(5));
+print(fact(6));
+print(1 + 2 * 3);
+print((1 + 2) * 3);
+print(10 / 2 + 3);
+print(10 % 3);
+print(1 == 1);
+print(1 != 2);
+print(2 < 3);
+print(2 <= 2);
+print(3 > 2);
+print(3 >= 3);
+print(true && false || true);
+print(!false);
+
