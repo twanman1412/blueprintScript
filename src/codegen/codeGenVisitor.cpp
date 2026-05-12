@@ -141,24 +141,44 @@ llvm::Value* CodeGenVisitor::getOrCreateStderr() {
     return builder->CreateLoad(i8PtrType, global, "stderr");
 }
 
-void CodeGenVisitor::emitRuntimeError(const std::string& message) {
+llvm::Value* CodeGenVisitor::getOrCreateErrorFormat() {
+    auto* global = module->getNamedGlobal("errfmt");
+    if (!global) {
+        global = builder->CreateGlobalString("%s\n", "errfmt");
+    }
+
+    auto* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 0);
+    std::array<llvm::Constant*, 2> indices = { zero, zero };
+    return llvm::ConstantExpr::getInBoundsGetElementPtr(
+        global->getValueType(),
+        global,
+        indices
+    );
+}
+
+llvm::Value* CodeGenVisitor::getOrCreateErrorMessage(const std::string& kind) {
+    const std::string name = kind == "requires" ? "errmsg.requires" : "errmsg.ensures";
+    const std::string message = kind == "requires" ? "Contract violation: requires failed" : "Contract violation: ensures failed";
+    auto* global = module->getNamedGlobal(name);
+    if (!global) {
+        global = builder->CreateGlobalString(message, name);
+    }
+
+    auto* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 0);
+    std::array<llvm::Constant*, 2> indices = { zero, zero };
+    return llvm::ConstantExpr::getInBoundsGetElementPtr(
+        global->getValueType(),
+        global,
+        indices
+    );
+}
+
+void CodeGenVisitor::emitRuntimeError(const std::string& kind) {
     auto* fprintfFn = getOrCreateFprintf();
     auto* exitFn = getOrCreateExit();
     auto* stderrValue = getOrCreateStderr();
-    auto* formatGlobal = builder->CreateGlobalString("%s\n", "errfmt");
-    auto* msgGlobal = builder->CreateGlobalString(message, "errmsg");
-    auto* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 0);
-    std::array<llvm::Constant*, 2> indices = { zero, zero };
-    auto* formatPtr = llvm::ConstantExpr::getInBoundsGetElementPtr(
-        formatGlobal->getValueType(),
-        formatGlobal,
-        indices
-    );
-    auto* msgPtr = llvm::ConstantExpr::getInBoundsGetElementPtr(
-        msgGlobal->getValueType(),
-        msgGlobal,
-        indices
-    );
+    auto* formatPtr = getOrCreateErrorFormat();
+    auto* msgPtr = getOrCreateErrorMessage(kind);
 
     builder->CreateCall(fprintfFn, { stderrValue, formatPtr, msgPtr });
     builder->CreateCall(exitFn, { llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 1) });
@@ -166,11 +186,11 @@ void CodeGenVisitor::emitRuntimeError(const std::string& message) {
 }
 
 std::string CodeGenVisitor::makeContractMessage(const std::string& kind) const {
-    std::string functionName = currentFunction ? std::string(currentFunction->getName()) : "<unknown>";
-    return "Contract violation: " + kind + " failed in " + functionName;
+    return "Contract violation: " + kind + " failed";
 }
 
-bool CodeGenVisitor::emitContractCheck(const ExprAST* condition, const std::string& message) {
+bool CodeGenVisitor::emitContractCheck(const ExprAST* condition, const std::string& kind) {
+    const std::string message = makeContractMessage(kind);
     if (!condition) {
         logCodegen("contract check missing condition: " + message);
         return false;
@@ -191,7 +211,7 @@ bool CodeGenVisitor::emitContractCheck(const ExprAST* condition, const std::stri
     builder->CreateCondBr(value, okBlock, failBlock);
 
     builder->SetInsertPoint(failBlock);
-    emitRuntimeError(message);
+    emitRuntimeError(kind);
 
     builder->SetInsertPoint(okBlock);
     return true;
@@ -209,7 +229,7 @@ bool CodeGenVisitor::emitRequiresChecks() {
         if (!requiresContract) {
             continue;
         }
-        if (!emitContractCheck(requiresContract->getCondition(), makeContractMessage("requires"))) {
+        if (!emitContractCheck(requiresContract->getCondition(), "requires")) {
             logCodegen("requires check emission failed");
             return false;
         }
@@ -230,7 +250,7 @@ bool CodeGenVisitor::emitEnsuresChecks() {
         if (!ensuresContract) {
             continue;
         }
-        if (!emitContractCheck(ensuresContract->getCondition(), makeContractMessage("ensures"))) {
+        if (!emitContractCheck(ensuresContract->getCondition(), "ensures")) {
             logCodegen("ensures check emission failed");
             return false;
         }

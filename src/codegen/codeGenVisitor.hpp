@@ -70,10 +70,12 @@ private:
     llvm::Function* getOrCreateFprintf();
     llvm::Function* getOrCreateExit();
     llvm::Value* getOrCreateStderr();
+    llvm::Value* getOrCreateErrorFormat();
+    llvm::Value* getOrCreateErrorMessage(const std::string& kind);
     llvm::Function* getOrCreateTopLevelFunction();
     llvm::Value* emitPrintValue(llvm::Value* value);
-    void emitRuntimeError(const std::string& message);
-    bool emitContractCheck(const ExprAST* condition, const std::string& message);
+    void emitRuntimeError(const std::string& kind);
+    bool emitContractCheck(const ExprAST* condition, const std::string& kind);
     bool emitRequiresChecks();
     bool emitEnsuresChecks();
     bool emitDefaultReturns();
