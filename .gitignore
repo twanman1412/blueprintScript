@@ -20,3 +20,7 @@ tmp/
 
 # Ignore build directory
 build/
+
+# Include example bpf files
+examples/*
+!examples/*.bpf
