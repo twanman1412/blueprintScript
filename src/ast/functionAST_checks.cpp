@@ -16,6 +16,10 @@ bool FunctionDeclAST::checkNode(AnalysisContext& ctx) {
 		return false;
 	}
 
+	const BlueprintAST* linkedBlueprint = nullptr;
+	ctx.lookupBlueprint(functionName, linkedBlueprint);
+	setLinkedBlueprint(linkedBlueprint);
+
 	// Enter function scope, register parameters as local symbols, then validate body
 	ctx.pushScope();
 	ctx.setCurrentFunction(type->getKind());

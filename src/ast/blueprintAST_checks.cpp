@@ -139,5 +139,8 @@ bool BlueprintAST::checkNode(AnalysisContext& ctx) {
 	}
 
 	ctx.popScope(); // pop temporary scope
+	if (!ctx.declareBlueprint(name, this)) {
+		return false;
+	}
 	return true;
 }

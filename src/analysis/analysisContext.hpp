@@ -7,6 +7,8 @@
 #include "../ast/commonAST.hpp"
 #include "../logger.hpp"
 
+class BlueprintAST;
+
 class AnalysisContext {
 	public:
 		enum class SymbolKind {
@@ -99,6 +101,25 @@ class AnalysisContext {
 			return true;
 		}
 
+		bool declareBlueprint(const std::string& name, const BlueprintAST* blueprint) {
+			if (blueprints_.find(name) != blueprints_.end()) {
+				logger_.errorln("Error: Blueprint '" + name + "' already declared");
+				return false;
+			}
+			blueprints_.emplace(name, blueprint);
+			return true;
+		}
+
+		bool lookupBlueprint(const std::string& name, const BlueprintAST*& outBlueprint) const {
+			auto it = blueprints_.find(name);
+			if (it == blueprints_.end()) {
+				outBlueprint = nullptr;
+				return false;
+			}
+			outBlueprint = it->second;
+			return true;
+		}
+
 		void setCurrentFunction(TypeAST::PrimitiveKind returnType) {
 			currentFunctionReturnType_ = returnType;
 		}
@@ -119,5 +140,6 @@ class AnalysisContext {
 		Logger &logger_;
 		std::vector<std::vector<Symbol>> scopes_;
 		std::unordered_map<std::string, FunctionSignature> functionSignatures_;
+		std::unordered_map<std::string, const BlueprintAST*> blueprints_;
 		TypeAST::PrimitiveKind currentFunctionReturnType_;
 };

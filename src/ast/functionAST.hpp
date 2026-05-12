@@ -7,6 +7,7 @@
 #include "stmtAST.hpp"
 
 class CodeGenVisitor;
+class BlueprintAST;
 
 namespace llvm {
 class Value;
@@ -28,13 +29,15 @@ class PrintAST: public ProgramAST {
 class FunctionDeclAST: public ProgramAST {
 	public:
 		FunctionDeclAST(const std::string &functionName, std::unique_ptr<TypeAST> type, std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> parameters, std::unique_ptr<StmtAST> body)
-			: functionName(functionName), type(std::move(type)), parameters(std::move(parameters)), body(std::move(body)) {}
+			: functionName(functionName), type(std::move(type)), parameters(std::move(parameters)), body(std::move(body)), linkedBlueprint(nullptr) {}
 		~FunctionDeclAST() = default;
 
 		const std::string &getFunctionName() const { return functionName; }
 		const TypeAST *getType() const { return type.get(); }
 		const std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> &getParameters() const { return parameters; }
 		const StmtAST *getBody() const { return body.get(); }
+		const BlueprintAST *getLinkedBlueprint() const { return linkedBlueprint; }
+		void setLinkedBlueprint(const BlueprintAST *blueprint) { linkedBlueprint = blueprint; }
 		void printAST() const override {
 			std::cout << "(FunctionDecl " << functionName << ' ';
 			if (type) type->printAST(); else std::cout << "(Type VOID)";
@@ -56,4 +59,5 @@ class FunctionDeclAST: public ProgramAST {
 		std::unique_ptr<TypeAST> type;
 		std::vector<std::pair<std::string, std::unique_ptr<TypeAST>>> parameters;
 		std::unique_ptr<StmtAST> body;
+		const BlueprintAST *linkedBlueprint;
 };

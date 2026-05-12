@@ -2,8 +2,10 @@
 
 #include "../ast/commonAST.hpp"
 #include "../ast/exprAST.hpp"
+#include "../ast/blueprintAST.hpp"
 #include "../ast/stmtAST.hpp"
 #include "../ast/functionAST.hpp"
+#include "../logger.hpp"
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
@@ -14,6 +16,12 @@
 
 #include <array>
 #include <vector>
+
+namespace {
+void logCodegen(const std::string& message) {
+    logger.debugln("[codegen] " + message);
+}
+}
 
 CodeGenVisitor::CodeGenVisitor(const std::string& moduleName) {
     context = std::make_unique<llvm::LLVMContext>();
@@ -95,6 +103,201 @@ llvm::Function* CodeGenVisitor::getOrCreatePrintf() {
     return llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "printf", module.get());
 }
 
+llvm::Function* CodeGenVisitor::getOrCreateFprintf() {
+    if (auto* fn = module->getFunction("fprintf")) {
+        return fn;
+    }
+
+    auto* i8PtrType = llvm::PointerType::get(*context, 0);
+    std::vector<llvm::Type*> params = { i8PtrType, i8PtrType };
+    auto* funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(*context), params, true);
+    return llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "fprintf", module.get());
+}
+
+llvm::Function* CodeGenVisitor::getOrCreateExit() {
+    if (auto* fn = module->getFunction("exit")) {
+        return fn;
+    }
+
+    std::vector<llvm::Type*> params = { llvm::Type::getInt32Ty(*context) };
+    auto* funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), params, false);
+    return llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "exit", module.get());
+}
+
+llvm::Value* CodeGenVisitor::getOrCreateStderr() {
+    auto* i8PtrType = llvm::PointerType::get(*context, 0);
+    auto* global = module->getNamedGlobal("stderr");
+    if (!global) {
+        global = new llvm::GlobalVariable(
+            *module,
+            i8PtrType,
+            false,
+            llvm::GlobalValue::ExternalLinkage,
+            nullptr,
+            "stderr"
+        );
+    }
+
+    return builder->CreateLoad(i8PtrType, global, "stderr");
+}
+
+void CodeGenVisitor::emitRuntimeError(const std::string& message) {
+    auto* fprintfFn = getOrCreateFprintf();
+    auto* exitFn = getOrCreateExit();
+    auto* stderrValue = getOrCreateStderr();
+    auto* formatGlobal = builder->CreateGlobalString("%s\n", "errfmt");
+    auto* msgGlobal = builder->CreateGlobalString(message, "errmsg");
+    auto* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 0);
+    std::array<llvm::Constant*, 2> indices = { zero, zero };
+    auto* formatPtr = llvm::ConstantExpr::getInBoundsGetElementPtr(
+        formatGlobal->getValueType(),
+        formatGlobal,
+        indices
+    );
+    auto* msgPtr = llvm::ConstantExpr::getInBoundsGetElementPtr(
+        msgGlobal->getValueType(),
+        msgGlobal,
+        indices
+    );
+
+    builder->CreateCall(fprintfFn, { stderrValue, formatPtr, msgPtr });
+    builder->CreateCall(exitFn, { llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 1) });
+    builder->CreateUnreachable();
+}
+
+std::string CodeGenVisitor::makeContractMessage(const std::string& kind) const {
+    std::string functionName = currentFunction ? std::string(currentFunction->getName()) : "<unknown>";
+    return "Contract violation: " + kind + " failed in " + functionName;
+}
+
+bool CodeGenVisitor::emitContractCheck(const ExprAST* condition, const std::string& message) {
+    if (!condition) {
+        logCodegen("contract check missing condition: " + message);
+        return false;
+    }
+
+    auto* conditionExpr = const_cast<ExprAST*>(condition);
+    llvm::Value* value = conditionExpr->accept(*this);
+    value = toBoolean(value);
+    if (!value) {
+        logCodegen("contract condition evaluation failed: " + message);
+        return false;
+    }
+
+    llvm::Function* function = builder->GetInsertBlock()->getParent();
+    llvm::BasicBlock* okBlock = llvm::BasicBlock::Create(*context, "contract.ok", function);
+    llvm::BasicBlock* failBlock = llvm::BasicBlock::Create(*context, "contract.fail", function);
+
+    builder->CreateCondBr(value, okBlock, failBlock);
+
+    builder->SetInsertPoint(failBlock);
+    emitRuntimeError(message);
+
+    builder->SetInsertPoint(okBlock);
+    return true;
+}
+
+bool CodeGenVisitor::emitRequiresChecks() {
+    if (!currentBlueprint) {
+        return true;
+    }
+
+    logCodegen("emit requires checks");
+
+    for (const auto& contract : currentBlueprint->getContracts()) {
+        auto* requiresContract = dynamic_cast<RequiresAST*>(contract.get());
+        if (!requiresContract) {
+            continue;
+        }
+        if (!emitContractCheck(requiresContract->getCondition(), makeContractMessage("requires"))) {
+            logCodegen("requires check emission failed");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CodeGenVisitor::emitEnsuresChecks() {
+    if (!currentBlueprint) {
+        return true;
+    }
+
+    logCodegen("emit ensures checks");
+
+    for (const auto& contract : currentBlueprint->getContracts()) {
+        auto* ensuresContract = dynamic_cast<EnsuresAST*>(contract.get());
+        if (!ensuresContract) {
+            continue;
+        }
+        if (!emitContractCheck(ensuresContract->getCondition(), makeContractMessage("ensures"))) {
+            logCodegen("ensures check emission failed");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CodeGenVisitor::emitDefaultReturns() {
+    if (!currentBlueprint) {
+        return true;
+    }
+
+    logCodegen("emit default returns");
+
+    if (!currentFunction) {
+        return false;
+    }
+
+    auto* returnType = currentFunction->getReturnType();
+    for (const auto& contract : currentBlueprint->getContracts()) {
+        auto* defaultContract = dynamic_cast<DefaultAST*>(contract.get());
+        if (!defaultContract) {
+            continue;
+        }
+
+        auto* conditionExpr = const_cast<ExprAST*>(defaultContract->getCondition());
+        llvm::Value* conditionValue = conditionExpr ? conditionExpr->accept(*this) : nullptr;
+        conditionValue = toBoolean(conditionValue);
+        if (!conditionValue) {
+            logCodegen("default condition evaluation failed");
+            return false;
+        }
+
+        llvm::Function* function = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock* returnBlock = llvm::BasicBlock::Create(*context, "default.return", function);
+        llvm::BasicBlock* nextBlock = llvm::BasicBlock::Create(*context, "default.next", function);
+        builder->CreateCondBr(conditionValue, returnBlock, nextBlock);
+
+        builder->SetInsertPoint(returnBlock);
+        llvm::Value* value = nullptr;
+        if (defaultContract->getValue()) {
+            value = const_cast<ExprAST*>(defaultContract->getValue())->accept(*this);
+            if (!value && !returnType->isVoidTy()) {
+                logCodegen("default return value evaluation failed");
+                return false;
+            }
+        }
+        if (currentReturnSlot && value) {
+            builder->CreateStore(value, currentReturnSlot);
+        }
+        if (!emitEnsuresChecks()) {
+            logCodegen("ensures checks failed before default return");
+            return false;
+        }
+        if (returnType->isVoidTy()) {
+            builder->CreateRetVoid();
+        } else {
+            builder->CreateRet(value);
+        }
+
+        builder->SetInsertPoint(nextBlock);
+    }
+
+    return true;
+}
+
 llvm::Function* CodeGenVisitor::getOrCreateTopLevelFunction() {
     if (topLevelFunction) {
         return topLevelFunction;
@@ -146,8 +349,10 @@ llvm::Value* CodeGenVisitor::visit(IdentifierExprAST* node) {
 }
 
 llvm::Value* CodeGenVisitor::visit(FunctionCallExprAST* node) {
+    logCodegen("visit FunctionCallExprAST: " + node->getFunctionName());
     llvm::Function* callee = module->getFunction(node->getFunctionName());
     if (!callee) {
+        logCodegen("missing callee: " + node->getFunctionName());
         return nullptr;
     }
 
@@ -156,6 +361,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionCallExprAST* node) {
     for (const auto& arg : node->getArguments()) {
         auto* argValue = arg->accept(*this);
         if (!argValue) {
+            logCodegen("failed argument codegen for call: " + node->getFunctionName());
             return nullptr;
         }
         args.push_back(argValue);
@@ -240,6 +446,9 @@ llvm::Value* CodeGenVisitor::visit(BlockStmtAST* node) {
     auto savedValues = namedValues;
     llvm::Value* last = nullptr;
     for (const auto& stmt : node->getStatements()) {
+        if (!stmt) {
+            return nullptr;
+        }
         last = stmt->accept(*this);
     }
     namedValues = std::move(savedValues);
@@ -343,11 +552,25 @@ llvm::Value* CodeGenVisitor::visit(WhileStmtAST* node) {
 }
 
 llvm::Value* CodeGenVisitor::visit(ReturnStmtAST* node) {
+    logCodegen("visit ReturnStmtAST");
+    llvm::Value* value = nullptr;
     if (node->getValue()) {
-        llvm::Value* value = node->getValue()->accept(*this);
+        value = node->getValue()->accept(*this);
         if (!value) {
+            logCodegen("failed return value codegen");
             return nullptr;
         }
+        if (currentReturnSlot) {
+            builder->CreateStore(value, currentReturnSlot);
+        }
+    }
+
+    if (!emitEnsuresChecks()) {
+        logCodegen("ensures checks failed before return");
+        return nullptr;
+    }
+
+    if (value) {
         return builder->CreateRet(value);
     }
 
@@ -364,6 +587,7 @@ llvm::Value* CodeGenVisitor::visit(PrintStmtAST* node) {
 }
 
 llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
+    logCodegen("visit FunctionDeclAST: " + node->getFunctionName());
     std::vector<llvm::Type*> paramTypes;
     paramTypes.reserve(node->getParameters().size());
     for (const auto& param : node->getParameters()) {
@@ -380,6 +604,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     }
 
     if (!function->empty()) {
+        logCodegen("function already defined: " + node->getFunctionName());
         return function;
     }
 
@@ -388,8 +613,18 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
 
     auto savedValues = namedValues;
     llvm::Function* savedFunction = currentFunction;
+    const BlueprintAST* savedBlueprint = currentBlueprint;
+    llvm::AllocaInst* savedReturnSlot = currentReturnSlot;
     currentFunction = function;
+    currentBlueprint = node->getLinkedBlueprint();
+    currentReturnSlot = nullptr;
     namedValues.clear();
+
+    if (currentBlueprint) {
+        logCodegen("linked blueprint found for function: " + node->getFunctionName());
+    } else {
+        logCodegen("no linked blueprint for function: " + node->getFunctionName());
+    }
 
     unsigned index = 0;
     for (auto& arg : function->args()) {
@@ -399,12 +634,50 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
         namedValues[param.first] = alloca;
     }
 
+    if (currentBlueprint && !returnType->isVoidTy()) {
+        currentReturnSlot = createEntryBlockAlloca(function, node->getFunctionName(), returnType);
+        namedValues[node->getFunctionName()] = currentReturnSlot;
+    }
+
+    if (!emitRequiresChecks()) {
+        logCodegen("requires checks failed for function: " + node->getFunctionName());
+        currentBlueprint = savedBlueprint;
+        currentFunction = savedFunction;
+        namedValues = std::move(savedValues);
+        return nullptr;
+    }
+
+    if (!emitDefaultReturns()) {
+        logCodegen("default returns failed for function: " + node->getFunctionName());
+        currentBlueprint = savedBlueprint;
+        currentFunction = savedFunction;
+        namedValues = std::move(savedValues);
+        return nullptr;
+    }
+
     if (node->getBody()) {
         auto* body = const_cast<StmtAST*>(node->getBody());
         body->accept(*this);
     }
 
     if (!builder->GetInsertBlock()->getTerminator()) {
+        if (currentReturnSlot && !returnType->isVoidTy()) {
+            if (returnType->isIntegerTy(1)) {
+                builder->CreateStore(llvm::ConstantInt::get(returnType, 0), currentReturnSlot);
+            } else if (returnType->isIntegerTy()) {
+                builder->CreateStore(llvm::ConstantInt::get(returnType, 0), currentReturnSlot);
+            } else {
+                builder->CreateStore(llvm::Constant::getNullValue(returnType), currentReturnSlot);
+            }
+        }
+        if (!emitEnsuresChecks()) {
+            logCodegen("ensures checks failed for function: " + node->getFunctionName());
+            currentBlueprint = savedBlueprint;
+            currentFunction = savedFunction;
+            currentReturnSlot = savedReturnSlot;
+            namedValues = std::move(savedValues);
+            return nullptr;
+        }
         if (returnType->isVoidTy()) {
             builder->CreateRetVoid();
         } else if (returnType->isIntegerTy(1)) {
@@ -416,7 +689,9 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
         }
     }
 
+    currentBlueprint = savedBlueprint;
     currentFunction = savedFunction;
+    currentReturnSlot = savedReturnSlot;
     namedValues = std::move(savedValues);
     return function;
 }

@@ -17,6 +17,7 @@ class IdentifierExprAST;
 class FunctionCallExprAST;
 class BinaryExprAST;
 class UnaryExprAST;
+class ExprAST;
 
 class TypeAST;
 
@@ -31,6 +32,7 @@ class PrintStmtAST;
 
 class FunctionDeclAST;
 class PrintAST;
+class BlueprintAST;
 
 class CodeGenVisitor {
 public:
@@ -65,8 +67,17 @@ private:
     llvm::Value* loadIfPointer(llvm::Value* value, const std::string& name = "");
     llvm::AllocaInst* createEntryBlockAlloca(llvm::Function* function, const std::string& name, llvm::Type* type);
     llvm::Function* getOrCreatePrintf();
+    llvm::Function* getOrCreateFprintf();
+    llvm::Function* getOrCreateExit();
+    llvm::Value* getOrCreateStderr();
     llvm::Function* getOrCreateTopLevelFunction();
     llvm::Value* emitPrintValue(llvm::Value* value);
+    void emitRuntimeError(const std::string& message);
+    bool emitContractCheck(const ExprAST* condition, const std::string& message);
+    bool emitRequiresChecks();
+    bool emitEnsuresChecks();
+    bool emitDefaultReturns();
+    std::string makeContractMessage(const std::string& kind) const;
 
     std::unique_ptr<llvm::LLVMContext> context;
     std::unique_ptr<llvm::IRBuilder<>> builder;
@@ -74,4 +85,6 @@ private:
     std::map<std::string, llvm::Value*> namedValues;
     llvm::Function* currentFunction = nullptr;
     llvm::Function* topLevelFunction = nullptr;
+    const BlueprintAST* currentBlueprint = nullptr;
+    llvm::AllocaInst* currentReturnSlot = nullptr;
 };
