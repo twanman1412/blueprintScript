@@ -34,6 +34,7 @@ std::unordered_map<std::string, Token> Lexer::keywords = {
 
 	// Printing
 	{"print", tok_print},
+	{"exit", tok_exit},
 };
 
 Lexer::Lexer(std::string sourceCode) : source(sourceCode) {

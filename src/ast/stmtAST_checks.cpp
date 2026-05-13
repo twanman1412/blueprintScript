@@ -130,3 +130,20 @@ bool ExprStmtAST::checkNode(AnalysisContext& ctx) {
 bool PrintStmtAST::checkNode(AnalysisContext& ctx) {
 	return expr->checkNode(ctx);
 }
+
+bool ExitStmtAST::checkNode(AnalysisContext& ctx) {
+	if (!expr->checkNode(ctx)) {
+		return false;
+	}
+
+	TypeAST::PrimitiveKind valueType;
+	if (!TypeChecker::getExprType(expr.get(), ctx, valueType)) {
+		return false;
+	}
+	if (valueType != TypeAST::INT32 && valueType != TypeAST::BOOL) {
+		ctx.getLogger().errorln("Error: exit expects INT32 or BOOL argument");
+		return false;
+	}
+
+	return true;
+}

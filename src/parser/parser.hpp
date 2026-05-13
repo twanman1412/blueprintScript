@@ -40,6 +40,7 @@ class Parser {
 		std::unique_ptr<WhileStmtAST> parseWhileStatement();
 		std::unique_ptr<ReturnStmtAST> parseReturnStatement();
 		std::unique_ptr<PrintStmtAST> parsePrintStatement();
+		std::unique_ptr<ExitStmtAST> parseExitStatement();
 
 		std::unique_ptr<TypeAST> parseType();
 

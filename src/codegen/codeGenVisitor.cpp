@@ -606,6 +606,25 @@ llvm::Value* CodeGenVisitor::visit(PrintStmtAST* node) {
     return emitPrintValue(value);
 }
 
+llvm::Value* CodeGenVisitor::visit(ExitStmtAST* node) {
+    logCodegen("visit ExitStmtAST");
+    llvm::Value* value = node->getExpr()->accept(*this);
+    if (!value) {
+        logCodegen("exit statement value codegen failed");
+        return nullptr;
+    }
+    llvm::Value* exitCode = value;
+    if (value->getType()->isIntegerTy(1)) {
+        exitCode = builder->CreateZExt(value, llvm::Type::getInt32Ty(*context), "exitbool");
+    } else if (!value->getType()->isIntegerTy(32)) {
+        logCodegen("exit statement expects int32 or bool");
+        return nullptr;
+    }
+    builder->CreateCall(getOrCreateExit(), { exitCode });
+    builder->CreateUnreachable();
+    return nullptr;
+}
+
 llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     logCodegen("visit FunctionDeclAST: " + node->getFunctionName());
     std::vector<llvm::Type*> paramTypes;

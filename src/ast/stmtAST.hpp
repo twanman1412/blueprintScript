@@ -180,3 +180,17 @@ class PrintStmtAST : public StmtAST {
 	private:
 		std::unique_ptr<ExprAST> expr;
 };
+
+class ExitStmtAST : public StmtAST {
+	public:
+		ExitStmtAST(std::unique_ptr<ExprAST> expr)
+			: expr(std::move(expr)) {}
+
+		ExprAST *getExpr() const { return expr.get(); }
+		void printAST() const override { std::cout << "(ExitStmt "; expr->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
+
+	private:
+		std::unique_ptr<ExprAST> expr;
+};

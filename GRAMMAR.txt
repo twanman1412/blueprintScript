@@ -33,6 +33,7 @@ Statement ::= "{" (Statement)* "}"
             | WhileStmt
             | ReturnStmt
 			| PrintStmt
+            | ExitStmt
 
 VarDeclStmt ::= Type Identifier "=" Expression ";"
 AssignStmt  ::= Identifier "=" Expression ";"
@@ -40,6 +41,7 @@ IfStmt      ::= "if" "(" Expression ")" Block ("else" (IfStmt | Block))?
 WhileStmt   ::= "while" "(" Expression ")" Block
 ReturnStmt  ::= "return" Expression? ";"
 PrintStmt   ::= "print" "(" Expression ")" ";"
+ExitStmt    ::= "exit" "(" Expression ")" ";"
 
 /* --- Expressions --- */
 Expression ::= LogicalOrExpr

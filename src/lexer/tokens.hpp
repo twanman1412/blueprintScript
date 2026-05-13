@@ -39,6 +39,7 @@ enum Token : int16_t {
 
 	// Printing
 	tok_print = -70,
+	tok_exit = -71,
 };
 
 // Operator tokens

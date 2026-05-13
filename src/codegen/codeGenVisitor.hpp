@@ -29,6 +29,7 @@ class WhileStmtAST;
 class ReturnStmtAST;
 class ExprStmtAST;
 class PrintStmtAST;
+class ExitStmtAST;
 
 class FunctionDeclAST;
 class PrintAST;
@@ -57,6 +58,7 @@ public:
     virtual llvm::Value* visit(ReturnStmtAST* node);
     virtual llvm::Value* visit(ExprStmtAST* node);
     virtual llvm::Value* visit(PrintStmtAST* node);
+    virtual llvm::Value* visit(ExitStmtAST* node);
 
     virtual llvm::Value* visit(FunctionDeclAST* node);
     virtual llvm::Value* visit(PrintAST* node);
