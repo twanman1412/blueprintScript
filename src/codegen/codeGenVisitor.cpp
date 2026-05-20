@@ -18,12 +18,13 @@
 #include <vector>
 
 namespace {
-void logCodegen(const std::string& message) {
-    logger.debugln("[codegen] " + message);
-}
+	void logCodegen(const std::string& message) {
+		logger.debugln("[codegen] " + message);
+	}
 }
 
-CodeGenVisitor::CodeGenVisitor(const std::string& moduleName) {
+CodeGenVisitor::CodeGenVisitor(const std::string& moduleName, CodeGenMode mode)
+	: mode(mode) {
     context = std::make_unique<llvm::LLVMContext>();
     builder = std::make_unique<llvm::IRBuilder<>>(*context);
     module = std::make_unique<llvm::Module>(moduleName, *context);

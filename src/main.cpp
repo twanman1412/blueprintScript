@@ -36,6 +36,8 @@ int main (int argc, char *argv[]) {
 	bool emitAsm = false;
 	bool emitLLVM = false;
 	char sourceFile[256] = {0};
+	bool enforceMode = false;
+	bool optimiseMode = false;
 
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
@@ -49,6 +51,18 @@ int main (int argc, char *argv[]) {
 			emitAsm = true;
 		} else if (arg == "--emit-llvm") {
 			emitLLVM = true;
+		} else if (arg == "--mode=enforce") {
+			if (optimiseMode) {
+				printf("Error: Cannot specify both enforce and optimise modes.\n");
+				return 1;
+			}
+			enforceMode = true;
+		} else if (arg == "--mode=optimise") {
+			if (enforceMode) {
+				printf("Error: Cannot specify both enforce and optimise modes.\n");
+				return 1;
+			}
+			optimiseMode = true;
 		} else {
 			if (sourceFile[0] != '\0') {
 				printf("Error: Multiple source files specified. Only one is allowed.\n");
@@ -66,6 +80,8 @@ int main (int argc, char *argv[]) {
 		printf("\t\t --emit-bin\t\t Emit object file (.o)\n");
 		printf("\t\t --emit-asm\t\t Emit assembly (.s)\n");
 		printf("\t\t --emit-llvm\t\t Emit LLVM IR (.ll)\n");
+		printf("\t\t --mode=enforce\t\t Enforce mode (default)\n");
+		printf("\t\t --mode=optimise\t Optimise mode\n");
 		printf("\n");
 		return 1;
 	}
@@ -94,7 +110,13 @@ int main (int argc, char *argv[]) {
 		return 1;
 	}
 
-	CodeGenVisitor codegen("blueprint_module");
+	CodeGenMode mode = CodeGenMode::Enforce;
+	if (optimiseMode) {
+		fprintf(stderr, "Optimise mode is not yet implemented.\n");
+		return 1;
+	}
+
+	CodeGenVisitor codegen("blueprint_module", mode);
 	for (auto &node : AST) {
 		if (!node) {
 			logger.errorln("Error: Encountered empty AST node during codegen");

@@ -35,9 +35,14 @@ class FunctionDeclAST;
 class PrintAST;
 class BlueprintAST;
 
+enum class CodeGenMode {
+    Enforce,
+    Optimise
+};
+
 class CodeGenVisitor {
 public:
-    CodeGenVisitor(const std::string& moduleName = "blueprint_module");
+    CodeGenVisitor(const std::string& moduleName = "blueprint_module", CodeGenMode mode = CodeGenMode::Enforce);
     virtual ~CodeGenVisitor() = default;
 
     llvm::Module* getModule() const { return module.get(); }
@@ -91,4 +96,5 @@ private:
     llvm::Function* topLevelFunction = nullptr;
     const BlueprintAST* currentBlueprint = nullptr;
     llvm::AllocaInst* currentReturnSlot = nullptr;
+    CodeGenMode mode = CodeGenMode::Enforce;
 };
