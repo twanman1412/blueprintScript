@@ -8,9 +8,9 @@
 
 ### Types
 
-+ 'i32': 32-bit signed integer
-+ 'bool': boolean
-+ 'void': no value
++ `i32`: 32-bit signed integer
++ `bool`: boolean
++ `void`: no value
 
 ### Functions
 
