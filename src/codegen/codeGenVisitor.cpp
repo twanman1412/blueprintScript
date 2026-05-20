@@ -8,6 +8,7 @@
 #include "../logger.hpp"
 
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Attributes.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>
@@ -326,6 +327,7 @@ llvm::Function* CodeGenVisitor::getOrCreateTopLevelFunction() {
 
     auto* funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(*context), false);
     topLevelFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main", module.get());
+    applyGeneralFunctionAttributes(topLevelFunction);
     auto* entry = llvm::BasicBlock::Create(*context, "entry", topLevelFunction);
     builder->SetInsertPoint(entry);
     return topLevelFunction;
@@ -351,6 +353,21 @@ llvm::Value* CodeGenVisitor::emitPrintValue(llvm::Value* value) {
         indices
     );
     return builder->CreateCall(printfFn, {formatPtr, printable});
+}
+
+void CodeGenVisitor::applyGeneralFunctionAttributes(llvm::Function* function) {
+    if (!function) {
+        return;
+    }
+
+    function->addFnAttr(llvm::Attribute::NoUnwind);
+    if (!function->getReturnType()->isVoidTy()) {
+        function->addRetAttr(llvm::Attribute::NoUndef);
+    }
+
+    for (auto& arg : function->args()) {
+        arg.addAttr(llvm::Attribute::NoUndef);
+    }
 }
 
 llvm::Value* CodeGenVisitor::visit(IntegerExprAST* node) {
@@ -642,6 +659,8 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     if (!function) {
         function = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node->getFunctionName(), module.get());
     }
+
+    applyGeneralFunctionAttributes(function);
 
     if (!function->empty()) {
         logCodegen("function already defined: " + node->getFunctionName());

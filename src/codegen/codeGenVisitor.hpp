@@ -82,6 +82,7 @@ private:
     llvm::Function* getOrCreateTopLevelFunction();
     llvm::Value* emitPrintValue(llvm::Value* value);
     void emitRuntimeError(const std::string& kind);
+    void applyGeneralFunctionAttributes(llvm::Function* function);
     bool emitContractCheck(const ExprAST* condition, const std::string& kind);
     bool emitRequiresChecks();
     bool emitEnsuresChecks();
