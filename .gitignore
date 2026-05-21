@@ -14,6 +14,8 @@ CMakeUserPresets.json
 
 # Executable
 BlueprintScript
+BlueprintScriptTests
+libBlueprintScriptLib.a
 
 # Ignore temporary files
 tmp/
