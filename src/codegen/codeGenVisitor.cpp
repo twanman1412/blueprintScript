@@ -24,8 +24,10 @@ namespace {
 	}
 }
 
-CodeGenVisitor::CodeGenVisitor(const std::string& moduleName, CodeGenMode mode)
-	: mode(mode) {
+CodeGenVisitor::CodeGenVisitor(const std::string& moduleName,
+                               CodeGenMode mode,
+                               std::unordered_map<std::string, bool> willReturnMap)
+	: mode(mode), willReturnMap(std::move(willReturnMap)) {
     context = std::make_unique<llvm::LLVMContext>();
     builder = std::make_unique<llvm::IRBuilder<>>(*context);
     module = std::make_unique<llvm::Module>(moduleName, *context);
@@ -370,6 +372,19 @@ void CodeGenVisitor::applyGeneralFunctionAttributes(llvm::Function* function) {
     }
 }
 
+void CodeGenVisitor::applyWillReturnAttribute(llvm::Function* function) {
+    if (!function || mode != CodeGenMode::Optimise) {
+        return;
+    }
+
+    auto it = willReturnMap.find(function->getName().str());
+    if (it == willReturnMap.end() || !it->second) {
+        return;
+    }
+
+    function->addFnAttr(llvm::Attribute::WillReturn);
+}
+
 llvm::Value* CodeGenVisitor::visit(IntegerExprAST* node) {
     return llvm::ConstantInt::get(*context, llvm::APInt(32, node->getValue(), true));
 }
@@ -661,6 +676,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     }
 
     applyGeneralFunctionAttributes(function);
+    applyWillReturnAttribute(function);
 
     if (!function->empty()) {
         logCodegen("function already defined: " + node->getFunctionName());

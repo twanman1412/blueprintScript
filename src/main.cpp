@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <optional>
+#include <unordered_map>
 
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/MC/TargetRegistry.h>
@@ -13,6 +14,7 @@
 #include <llvm/Target/TargetOptions.h>
 
 #include "analysis/semanticValidator.hpp"
+#include "analysis/willReturnInferer.hpp"
 #include "codegen/codeGenVisitor.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
@@ -111,12 +113,19 @@ int main (int argc, char *argv[]) {
 	}
 
 	CodeGenMode mode = CodeGenMode::Enforce;
+	std::unordered_map<std::string, bool> willReturnMap;
 	if (optimiseMode) {
-		fprintf(stderr, "Optimise mode is not yet implemented.\n");
-		return 1;
+		mode = CodeGenMode::Optimise;
+		try {
+			WillReturnInferer inferer;
+			willReturnMap = inferer.infer(AST);
+		} catch (const std::runtime_error& error) {
+			logger.errorln(error.what());
+			return 1;
+		}
 	}
 
-	CodeGenVisitor codegen("blueprint_module", mode);
+	CodeGenVisitor codegen("blueprint_module", mode, std::move(willReturnMap));
 	for (auto &node : AST) {
 		if (!node) {
 			logger.errorln("Error: Encountered empty AST node during codegen");

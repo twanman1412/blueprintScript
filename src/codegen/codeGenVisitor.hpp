@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include "../ast/commonAST.hpp"
 
@@ -42,7 +43,9 @@ enum class CodeGenMode {
 
 class CodeGenVisitor {
 public:
-    CodeGenVisitor(const std::string& moduleName = "blueprint_module", CodeGenMode mode = CodeGenMode::Enforce);
+    CodeGenVisitor(const std::string& moduleName = "blueprint_module",
+                   CodeGenMode mode = CodeGenMode::Enforce,
+                   std::unordered_map<std::string, bool> willReturnMap = {});
     virtual ~CodeGenVisitor() = default;
 
     llvm::Module* getModule() const { return module.get(); }
@@ -83,6 +86,7 @@ private:
     llvm::Value* emitPrintValue(llvm::Value* value);
     void emitRuntimeError(const std::string& kind);
     void applyGeneralFunctionAttributes(llvm::Function* function);
+    void applyWillReturnAttribute(llvm::Function* function);
     bool emitContractCheck(const ExprAST* condition, const std::string& kind);
     bool emitRequiresChecks();
     bool emitEnsuresChecks();
@@ -98,4 +102,5 @@ private:
     const BlueprintAST* currentBlueprint = nullptr;
     llvm::AllocaInst* currentReturnSlot = nullptr;
     CodeGenMode mode = CodeGenMode::Enforce;
+    std::unordered_map<std::string, bool> willReturnMap;
 };
