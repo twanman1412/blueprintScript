@@ -16,6 +16,7 @@
 #include "analysis/semanticValidator.hpp"
 #include "analysis/willReturnInferer.hpp"
 #include "codegen/codeGenVisitor.hpp"
+#include "elaboration/elaborationPass.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include "logger.hpp"
@@ -106,6 +107,8 @@ int main (int argc, char *argv[]) {
 	Lexer lexer(sourceCode);
 	Parser parser(lexer);
 	auto AST = parser.parse();
+	ElaborationPass elaboration;
+	elaboration.elaborate(AST);
 
 	SemanticValidator validator(logger);
 	if (!validator.validate(AST)) {

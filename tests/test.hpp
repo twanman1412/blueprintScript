@@ -66,6 +66,11 @@ namespace Tests {
         return std::make_unique<UnaryExprAST>(UnaryExprAST::NEGATE, std::move(expr));
     }
 
+    inline std::unique_ptr<ExprAST> makeUnary(UnaryExprAST::Operator op, std::unique_ptr<ExprAST> operand) {
+        return std::make_unique<UnaryExprAST>(op, std::move(operand));
+    }
+
+
     inline std::unique_ptr<ExprAST> makeBin(BinaryExprAST::Operator op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs) {
         return std::make_unique<BinaryExprAST>(op, std::move(lhs), std::move(rhs));
     }
@@ -79,5 +84,4 @@ namespace Tests {
         }
         return std::make_unique<BlueprintAST>("test", std::move(contracts));
     }
-
 }

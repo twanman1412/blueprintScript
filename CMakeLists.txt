@@ -31,8 +31,9 @@ endif()
 enable_testing()
 add_executable(BlueprintScriptTests
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/metadataInferer_tests.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/metadataInferer_tests.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/willReturnInferer_tests.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/expressionSimplifier_tests.cpp
 )
 target_link_libraries(BlueprintScriptTests PRIVATE BlueprintScriptLib)
 add_test(NAME blueprintscript_metadata_inferer COMMAND BlueprintScriptTests)
