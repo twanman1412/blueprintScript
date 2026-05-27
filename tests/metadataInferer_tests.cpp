@@ -179,6 +179,28 @@ namespace MetadataInfererTests {
         Tests::expectTrue(meta.paramRanges.empty(), "bool parameter ignored for range inference", failures);
     }
 
+    void testMultipleContracts() {
+        std::vector<InputAST::InputParam> inputs;
+        inputs.emplace_back("n", std::make_unique<TypeAST>(TypeAST::INT32));
+
+        std::vector<std::unique_ptr<ContractAST>> contracts;
+        contracts.push_back(std::make_unique<RequiresAST>(
+            Tests::makeBin(BinaryExprAST::GREATER_EQUAL, Tests::makeId("n"), Tests::makeInt(0))
+        ));
+        contracts.push_back(std::make_unique<RequiresAST>(
+            Tests::makeBin(BinaryExprAST::LESS_EQUAL, Tests::makeId("n"), Tests::makeInt(10))
+        ));
+
+        auto blueprint = Tests::buildBlueprint(std::move(inputs), std::make_unique<TypeAST>(TypeAST::INT32), std::move(contracts));
+        ContractMetadataInferer inferer;
+        auto meta = inferer.infer(blueprint.get(), "foo");
+
+        const auto& range = meta.paramRanges.at("n");
+        Tests::expectTrue(range.hasLower && range.hasUpper, "multiple contracts intersected", failures);
+        Tests::expectEqual(range.lower, 0, "intersection lower", failures);
+        Tests::expectEqual(range.upper, 10, "intersection upper", failures);
+    }
+
     int runTests() {
         testLowerBound();
         testUpperBound();
@@ -189,7 +211,7 @@ namespace MetadataInfererTests {
         testNegativeLiteral();
         testMismatchedIdentifierIgnored();
         testBoolParamIgnored();
-
+        testMultipleContracts();
         if (failures == 0) {
             std::cout << "All metadata inference tests passed.\n";
             return 0;

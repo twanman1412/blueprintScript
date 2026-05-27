@@ -8,6 +8,7 @@ namespace MetadataInfererTests {
     void testMismatchedIdentifierIgnored();
     void testBoolParamIgnored();
     void testReturnType();
+    void testMultipleContracts();
 
     int runTests();
 }
