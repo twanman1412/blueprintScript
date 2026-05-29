@@ -87,6 +87,7 @@ private:
     void emitRuntimeError(const std::string& kind);
     void applyGeneralFunctionAttributes(llvm::Function* function);
     void applyWillReturnAttribute(llvm::Function* function);
+    void applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node);
     bool emitContractCheck(const ExprAST* condition, const std::string& kind);
     bool emitRequiresChecks();
     bool emitEnsuresChecks();

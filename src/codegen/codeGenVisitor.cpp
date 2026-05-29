@@ -5,8 +5,11 @@
 #include "../ast/blueprintAST.hpp"
 #include "../ast/stmtAST.hpp"
 #include "../ast/functionAST.hpp"
+#include "../analysis/metadataInferer.hpp"
 #include "../logger.hpp"
 
+#include <llvm/ADT/APInt.h>
+#include <llvm/IR/ConstantRange.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Constants.h>
@@ -194,6 +197,10 @@ std::string CodeGenVisitor::makeContractMessage(const std::string& kind) const {
 }
 
 bool CodeGenVisitor::emitContractCheck(const ExprAST* condition, const std::string& kind) {
+    if (mode == CodeGenMode::Optimise) {
+        return true;
+    }
+
     const std::string message = makeContractMessage(kind);
     if (!condition) {
         logCodegen("contract check missing condition: " + message);
@@ -383,6 +390,74 @@ void CodeGenVisitor::applyWillReturnAttribute(llvm::Function* function) {
     }
 
     function->addFnAttr(llvm::Attribute::WillReturn);
+}
+
+void CodeGenVisitor::applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node) {
+    if (!function || !node || mode != CodeGenMode::Optimise || !currentBlueprint) {
+        return;
+    }
+
+    ContractMetadataInferer inferer;
+    InferredMetadata metadata = inferer.infer(currentBlueprint, node->getFunctionName());
+    if (metadata.empty()) {
+        return;
+    }
+
+    std::map<std::string, unsigned> paramIndices;
+    unsigned index = 0;
+    for (const auto& param : node->getParameters()) {
+        paramIndices[param.first] = index++;
+    }
+
+    const unsigned bitWidth = 32;
+    auto makeRange = [&](const InferredRange& range) -> std::optional<llvm::ConstantRange> {
+        if (!range.hasLower && !range.hasUpper) {
+            return std::nullopt;
+        }
+
+        llvm::APInt signedMin = llvm::APInt::getSignedMinValue(bitWidth);
+        llvm::APInt lower = signedMin;
+        llvm::APInt upper = signedMin;
+
+        if (range.hasLower && range.hasUpper) {
+            lower = llvm::APInt(bitWidth, static_cast<uint64_t>(range.lower), true);
+            llvm::APInt upperInclusive(bitWidth, static_cast<uint64_t>(range.upper), true);
+            upper = upperInclusive + 1;
+        } else if (range.hasLower) {
+            lower = llvm::APInt(bitWidth, static_cast<uint64_t>(range.lower), true);
+            upper = signedMin;
+        } else if (range.hasUpper) {
+            lower = signedMin;
+            llvm::APInt upperInclusive(bitWidth, static_cast<uint64_t>(range.upper), true);
+            upper = upperInclusive + 1;
+        }
+
+        return llvm::ConstantRange::getNonEmpty(lower, upper);
+    };
+
+    for (const auto& entry : metadata.paramRanges) {
+        auto it = paramIndices.find(entry.first);
+        if (it == paramIndices.end()) {
+            continue;
+        }
+        if (!function->getFunctionType()->getParamType(it->second)->isIntegerTy(bitWidth)) {
+            continue;
+        }
+        auto range = makeRange(entry.second);
+        if (!range) {
+            continue;
+        }
+        auto attr = llvm::Attribute::get(*context, llvm::Attribute::Range, *range);
+        function->addParamAttr(it->second, attr);
+    }
+
+    if (metadata.returnRange && function->getReturnType()->isIntegerTy(bitWidth)) {
+        auto range = makeRange(*metadata.returnRange);
+        if (range) {
+            auto attr = llvm::Attribute::get(*context, llvm::Attribute::Range, *range);
+            function->addRetAttr(attr);
+        }
+    }
 }
 
 llvm::Value* CodeGenVisitor::visit(IntegerExprAST* node) {
@@ -694,6 +769,8 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     currentBlueprint = node->getLinkedBlueprint();
     currentReturnSlot = nullptr;
     namedValues.clear();
+
+    applyRangeAttributes(function, node);
 
     if (currentBlueprint) {
         logCodegen("linked blueprint found for function: " + node->getFunctionName());
