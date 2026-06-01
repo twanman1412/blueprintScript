@@ -25,4 +25,4 @@ build/
 
 # Include example bpf files
 examples/*
-!examples/*.bpf
+!examples/*.bps
