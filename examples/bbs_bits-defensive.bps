@@ -1,0 +1,69 @@
+function i32 mulMod(i32 a, i32 b, i32 mod) {
+    if (b < 0) {
+        exit(-1);
+    }
+    if (mod <= 1) {
+        exit(-1);
+    }
+
+    i32 result = 0;
+    a = a % mod;
+    if (a < 0) {
+        a = a + mod;
+    }
+
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result + a) % mod;
+            if (result < 0) {
+                exit(-1);
+            }
+        }
+        a = (a + a) % mod;
+        if (a < 0) {
+            exit(-1);
+        }
+        b = b / 2;
+    }
+
+    return result;
+}
+
+function i32 bbsBits(i32 seed, i32 modulus, i32 count) {
+    if (count < 0) {
+        exit(-1);
+    }
+    if (modulus <= 1) {
+        exit(-1);
+    }
+
+    i32 result = 0;
+    i32 sumMod = 1000000007;
+    i32 i = 0;
+
+    seed = seed % modulus;
+    if (seed < 0) {
+        seed = seed + modulus;
+    }
+
+    while (i < count) {
+        seed = mulMod(seed, seed, modulus);
+        result = (result + (seed % 2)) % sumMod;
+        if (result < 0) {
+            exit(-1);
+        }
+        i = i + 1;
+    }
+
+    return result;
+}
+
+function i32 bbsStress() {
+    i32 seed = 123456789;
+    i32 modulus = 1000003;
+    i32 count = 200000000;
+
+    return bbsBits(seed, modulus, count);
+}
+
+print(bbsStress());
