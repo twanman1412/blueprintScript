@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -5,7 +6,9 @@
 #include <unordered_map>
 
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/PassManager.h>
 #include <llvm/MC/TargetRegistry.h>
+#include <llvm/Passes/PassBuilder.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/TargetParser/Host.h>
 #include <llvm/Support/TargetSelect.h>
@@ -35,8 +38,6 @@ int main (int argc, char *argv[]) {
 
 	bool verbose = false;
 	bool showHelp = false;
-	bool emitBin = false;
-	bool emitAsm = false;
 	bool emitLLVM = false;
 	char sourceFile[256] = {0};
 	bool enforceMode = false;
@@ -48,10 +49,6 @@ int main (int argc, char *argv[]) {
 			showHelp = true;
 		} else if (arg == "-v" || arg == "--verbose") {
 			verbose = true;
-		} else if (arg == "--emit-bin") {
-			emitBin = true;
-		} else if (arg == "--emit-asm") {
-			emitAsm = true;
 		} else if (arg == "--emit-llvm") {
 			emitLLVM = true;
 		} else if (arg == "--mode=enforce") {
@@ -80,8 +77,6 @@ int main (int argc, char *argv[]) {
 		printf("\t Options:\n");
 		printf("\t\t -h, --help\t\t Show this help message\n");
 		printf("\t\t -v, --verbose\t\t Enable verbose output\n");
-		printf("\t\t --emit-bin\t\t Emit object file (.o)\n");
-		printf("\t\t --emit-asm\t\t Emit assembly (.s)\n");
 		printf("\t\t --emit-llvm\t\t Emit LLVM IR (.ll)\n");
 		printf("\t\t --mode=enforce\t\t Enforce mode (default)\n");
 		printf("\t\t --mode=optimise\t Optimise mode\n");
@@ -147,81 +142,41 @@ int main (int argc, char *argv[]) {
 	auto *module = codegen.getModule();
 	std::string outputBase = getOutputBase(sourceFile);
 
-	if (emitLLVM) {
-		std::string outputPath = outputBase + ".ll";
+	// Run the O3 optimization pipeline on the module.
+	llvm::LoopAnalysisManager lam;
+	llvm::FunctionAnalysisManager fam;
+	llvm::CGSCCAnalysisManager cgam;
+	llvm::ModuleAnalysisManager mam;
+	llvm::PassBuilder passBuilder;
+	passBuilder.registerModuleAnalyses(mam);
+	passBuilder.registerCGSCCAnalyses(cgam);
+	passBuilder.registerFunctionAnalyses(fam);
+	passBuilder.registerLoopAnalyses(lam);
+	passBuilder.crossRegisterProxies(lam, fam, cgam, mam);
+	llvm::ModulePassManager mpm;
+	mpm.addPass(passBuilder.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O3));
+	mpm.run(*module, mam);
+
+	std::string llvmPath = outputBase + ".ll";
+	{
 		std::error_code ec;
-		llvm::raw_fd_ostream out(outputPath, ec, llvm::sys::fs::OF_None);
+		llvm::raw_fd_ostream out(llvmPath, ec, llvm::sys::fs::OF_Text);
 		if (ec) {
-			llvm::errs() << "Error: Could not write to " << outputPath << ": " << ec.message() << "\n";
+			logger.errorf("Error: Could not open output file %s: %s\n", llvmPath.c_str(), ec.message().c_str());
 			return 1;
 		}
 		module->print(out, nullptr);
 	}
 
-	llvm::InitializeNativeTarget();
-	llvm::InitializeNativeTargetAsmPrinter();
-	llvm::InitializeNativeTargetAsmParser();
-
-	llvm::Triple targetTriple(llvm::sys::getDefaultTargetTriple());
-	module->setTargetTriple(targetTriple);
-
-	std::string error;
-	const llvm::Target* target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
-	if (!target) {
-		llvm::errs() << "Error: " << error << "\n";
+	std::string clangCommand = "clang -O0 \"" + llvmPath + "\" -o \"" + outputBase + "\"";
+	int clangResult = std::system(clangCommand.c_str());
+	if (clangResult != 0) {
+		logger.errorln("Error: clang failed to produce the executable");
 		return 1;
 	}
 
-	llvm::TargetOptions options;
-	std::optional<llvm::Reloc::Model> relocModel;
-	auto targetMachine = std::unique_ptr<llvm::TargetMachine>(
-		target->createTargetMachine(targetTriple, "generic", "", options, relocModel)
-	);
-	module->setDataLayout(targetMachine->createDataLayout());
-
-	auto emitFile = [&](llvm::CodeGenFileType fileType, const std::string& path) -> bool {
-		std::error_code ec;
-		llvm::raw_fd_ostream dest(path, ec, llvm::sys::fs::OF_None);
-		if (ec) {
-			llvm::errs() << "Error: Could not write to " << path << ": " << ec.message() << "\n";
-			return false;
-		}
-		llvm::legacy::PassManager pass;
-		if (targetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
-			llvm::errs() << "Error: Target machine cannot emit file type\n";
-			return false;
-		}
-		pass.run(*module);
-		return true;
-	};
-
-	std::string objectPath = outputBase + ".o";
-	if (!emitFile(llvm::CodeGenFileType::ObjectFile, objectPath)) {
-		return 1;
-	}
-
-	if (emitAsm) {
-		std::string outputPath = outputBase + ".s";
-		if (!emitFile(llvm::CodeGenFileType::AssemblyFile, outputPath)) {
-			return 1;
-		}
-	}
-
-	std::string exePath = outputBase;
-	std::string linkCmd = "cc -no-pie -o \"" + exePath + "\" \"" + objectPath + "\"";
-	if (std::system(linkCmd.c_str()) != 0) {
-		llvm::errs() << "Error: Failed to link executable\n";
-		return 1;
-	}
-
-	if (!emitBin) {
-		llvm::sys::fs::remove(objectPath);
-	}
-
-	if (verbose) {
-		for (const auto &node : AST) {
-			node->printAST();
-		}
+	if (!emitLLVM) {
+		std::remove(llvmPath.c_str());
 	}
 
 	return 0;
