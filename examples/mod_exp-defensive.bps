@@ -1,30 +1,21 @@
-blueprint mulMod {
-    input: a: i32, b: i32, mod: i32;
-    output: i32;
-    default: a == 0 ==> 0;
-    default: b == 0 ==> 0;
-    requires: b >= 0 && mod > 1;
-    ensures: mulMod >= 0 && mulMod < mod;
-}
-
-blueprint modExp {
-    input: base: i32, exp: i32, mod: i32;
-    output: i32;
-    default: exp == 0 ==> 1;
-    default: base % mod == 0 ==> 0;
-    requires: exp >= 0 && mod > 1;
-    ensures: modExp >= 0 && modExp < mod;
-}
-
 function i32 mulMod(i32 a, i32 b, i32 mod) {
     i32 result = 0;
     a = a % mod;
+    if (a < 0) {
+        a = a + mod;
+    }
 
     while (b > 0) {
         if (b % 2 == 1) {
             result = (result + a) % mod;
+            if (result < 0) {
+                exit(-1);
+            }
         }
         a = (a + a) % mod;
+        if (a < 0) {
+            exit(-1);
+        }
         b = b / 2;
     }
 
@@ -32,17 +23,36 @@ function i32 mulMod(i32 a, i32 b, i32 mod) {
 }
 
 function i32 modExp(i32 base, i32 exp, i32 mod) {
+    if (exp < 0) {
+        exit(-1);
+    }
+    if (mod <= 1) {
+        exit(-1);
+    }
+
     i32 result = 1;
     base = base % mod;
-    
+    if (base < 0) {
+        base = base + mod;
+    }
+
     while (exp > 0) {
         if (exp % 2 == 1) {
             result = mulMod(result, base, mod);
+            if (result < 0) {
+                exit(-1);
+            }
         }
         exp = exp / 2;
         base = mulMod(base, base, mod);
+        if (base < 0) {
+            exit(-1);
+        }
     }
-    
+
+    if (result < 0 || result >= mod) {
+        exit(-1);
+    }
     return result;
 }
 
@@ -56,6 +66,9 @@ function i32 modExpStress() {
     while (i <= iterations) {
         i32 currentMod = modExp(i, maxExponent, modulus);
         result = (result + currentMod) % modulus;
+        if (result < 0) {
+            exit(-1);
+        }
         i = i + 1;
     }
 
