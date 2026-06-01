@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "../analysis/metadataInferer.hpp"
 #include "../ast/commonAST.hpp"
 
 class IntegerExprAST;
@@ -87,7 +88,7 @@ private:
     void emitRuntimeError(const std::string& kind);
     void applyGeneralFunctionAttributes(llvm::Function* function);
     void applyWillReturnAttribute(llvm::Function* function);
-    void applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node);
+    void applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node, const InferredMetadata& metadata);
     bool emitContractCheck(const ExprAST* condition, const std::string& kind);
     bool emitRequiresChecks();
     bool emitEnsuresChecks();
@@ -98,6 +99,7 @@ private:
     std::unique_ptr<llvm::IRBuilder<>> builder;
     std::unique_ptr<llvm::Module> module;
     std::map<std::string, llvm::Value*> namedValues;
+    std::map<std::string, InferredRange> currentParamRanges;
     llvm::Function* currentFunction = nullptr;
     llvm::Function* topLevelFunction = nullptr;
     const BlueprintAST* currentBlueprint = nullptr;

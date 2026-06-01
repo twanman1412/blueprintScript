@@ -5,6 +5,7 @@
 #include "../ast/blueprintAST.hpp"
 #include "../ast/stmtAST.hpp"
 #include "../ast/functionAST.hpp"
+#include "../analysis/expressionRangeInferer.hpp"
 #include "../analysis/metadataInferer.hpp"
 #include "../logger.hpp"
 
@@ -19,12 +20,31 @@
 #include <llvm/Support/Casting.h>
 
 #include <array>
+#include <cstdint>
+#include <limits>
 #include <vector>
 
 namespace {
 	void logCodegen(const std::string& message) {
 		logger.debugln("[codegen] " + message);
 	}
+
+    void applyNoWrapFlags(llvm::Instruction* instruction, const std::optional<InferredRange>& range) {
+        if (!instruction || !range || !range->hasLower || !range->hasUpper) {
+            return;
+        }
+
+        const long long lower = range->lower;
+        const long long upper = range->upper;
+
+        if (lower >= std::numeric_limits<int32_t>::min() && upper <= std::numeric_limits<int32_t>::max()) {
+            instruction->setHasNoSignedWrap(true);
+        }
+
+        if (lower >= 0 && upper <= std::numeric_limits<uint32_t>::max()) {
+            instruction->setHasNoUnsignedWrap(true);
+        }
+    }
 }
 
 CodeGenVisitor::CodeGenVisitor(const std::string& moduleName,
@@ -392,13 +412,11 @@ void CodeGenVisitor::applyWillReturnAttribute(llvm::Function* function) {
     function->addFnAttr(llvm::Attribute::WillReturn);
 }
 
-void CodeGenVisitor::applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node) {
+void CodeGenVisitor::applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node, const InferredMetadata& metadata) {
     if (!function || !node || mode != CodeGenMode::Optimise || !currentBlueprint) {
         return;
     }
 
-    ContractMetadataInferer inferer;
-    InferredMetadata metadata = inferer.infer(currentBlueprint, node->getFunctionName());
     if (metadata.empty()) {
         return;
     }
@@ -506,12 +524,33 @@ llvm::Value* CodeGenVisitor::visit(BinaryExprAST* node) {
     }
 
     switch (node->getOp()) {
-        case BinaryExprAST::PLUS:
-            return builder->CreateAdd(lhs, rhs, "addtmp");
-        case BinaryExprAST::MINUS:
-            return builder->CreateSub(lhs, rhs, "subtmp");
-        case BinaryExprAST::MULTIPLY:
-            return builder->CreateMul(lhs, rhs, "multmp");
+        case BinaryExprAST::PLUS: {
+            auto* value = builder->CreateAdd(lhs, rhs, "addtmp");
+            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
+            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
+                ExpressionRangeInferer rangeInferer;
+                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
+            }
+            return value;
+        }
+        case BinaryExprAST::MINUS: {
+            auto* value = builder->CreateSub(lhs, rhs, "subtmp");
+            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
+            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
+                ExpressionRangeInferer rangeInferer;
+                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
+            }
+            return value;
+        }
+        case BinaryExprAST::MULTIPLY: {
+            auto* value = builder->CreateMul(lhs, rhs, "multmp");
+            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
+            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
+                ExpressionRangeInferer rangeInferer;
+                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
+            }
+            return value;
+        }
         case BinaryExprAST::DIVIDE:
             return builder->CreateSDiv(lhs, rhs, "divtmp");
         case BinaryExprAST::MODULO:
@@ -765,12 +804,20 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     llvm::Function* savedFunction = currentFunction;
     const BlueprintAST* savedBlueprint = currentBlueprint;
     llvm::AllocaInst* savedReturnSlot = currentReturnSlot;
+    auto savedParamRanges = currentParamRanges;
     currentFunction = function;
     currentBlueprint = node->getLinkedBlueprint();
     currentReturnSlot = nullptr;
     namedValues.clear();
 
-    applyRangeAttributes(function, node);
+    ContractMetadataInferer inferer;
+    InferredMetadata metadata;
+    currentParamRanges.clear();
+    if (currentBlueprint && mode == CodeGenMode::Optimise) {
+        metadata = inferer.infer(currentBlueprint, node->getFunctionName());
+        currentParamRanges = metadata.paramRanges;
+    }
+    applyRangeAttributes(function, node, metadata);
 
     if (currentBlueprint) {
         logCodegen("linked blueprint found for function: " + node->getFunctionName());
@@ -795,6 +842,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
         logCodegen("requires checks failed for function: " + node->getFunctionName());
         currentBlueprint = savedBlueprint;
         currentFunction = savedFunction;
+        currentParamRanges = std::move(savedParamRanges);
         namedValues = std::move(savedValues);
         return nullptr;
     }
@@ -803,6 +851,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
         logCodegen("default returns failed for function: " + node->getFunctionName());
         currentBlueprint = savedBlueprint;
         currentFunction = savedFunction;
+        currentParamRanges = std::move(savedParamRanges);
         namedValues = std::move(savedValues);
         return nullptr;
     }
@@ -827,6 +876,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
             currentBlueprint = savedBlueprint;
             currentFunction = savedFunction;
             currentReturnSlot = savedReturnSlot;
+            currentParamRanges = std::move(savedParamRanges);
             namedValues = std::move(savedValues);
             return nullptr;
         }
@@ -844,6 +894,7 @@ llvm::Value* CodeGenVisitor::visit(FunctionDeclAST* node) {
     currentBlueprint = savedBlueprint;
     currentFunction = savedFunction;
     currentReturnSlot = savedReturnSlot;
+    currentParamRanges = std::move(savedParamRanges);
     namedValues = std::move(savedValues);
     return function;
 }
@@ -857,4 +908,3 @@ llvm::Value* CodeGenVisitor::visit(PrintAST* node) {
     llvm::Value* value = expr ? expr->accept(*this) : nullptr;
     return emitPrintValue(value);
 }
-
