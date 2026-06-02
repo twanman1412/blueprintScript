@@ -1,7 +1,5 @@
 function i32 fibonacci(i32 n) {
-    if (n < 0) {
-        exit(-1);
-    }
+	assert(n >= 0);
 
     if (n <= 0) {
         return 0;
@@ -11,9 +9,7 @@ function i32 fibonacci(i32 n) {
     }
 
 	i32 res = fibonacci(n - 1) + fibonacci(n - 2);
-	if (res < 0) {
-		exit(-1);
-	}
+	assert(res >= 0);
 	return res;
 }
 

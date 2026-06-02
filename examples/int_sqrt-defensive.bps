@@ -1,7 +1,5 @@
 function i32 intSqrt(i32 n) {
-    if (n < 0) {
-        exit(-1);
-    }
+	assert(n >= 0);
 
     i32 low = 0;
     i32 high = n;
@@ -31,9 +29,6 @@ function i32 intSqrtStress() {
 
     while (i <= limit) {
         sum = (sum + intSqrt(i)) % modulus;
-        if (sum < 0) {
-            exit(-1);
-        }
         i = i + 1;
     }
 

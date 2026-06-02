@@ -1,7 +1,5 @@
 function bool isSquare(i32 n) {
-    if (n < 0) {
-        exit(-1);
-    }
+	assert(n >= 0);
 
     i32 odd = 1;
     while (n > 0) {

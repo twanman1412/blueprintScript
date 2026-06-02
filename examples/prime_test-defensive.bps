@@ -1,7 +1,5 @@
 function bool isPrime(i32 n) {
-    if (n < 0) {
-        exit(-1);
-    }
+	assert(n >= 0);
     if (n <= 1) {
         return false;
     }

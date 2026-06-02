@@ -1,28 +1,18 @@
 function i32 mulMod(i32 a, i32 b, i32 mod) {
-    if (b < 0) {
-        exit(-1);
-    }
-    if (mod <= 1) {
-        exit(-1);
-    }
+	assert(b >= 0);
+	assert(mod > 1);
 
     i32 result = 0;
     a = a % mod;
-    if (a < 0) {
-        a = a + mod;
-    }
+	assert(a >= 0);
 
     while (b > 0) {
         if (b % 2 == 1) {
             result = (result + a) % mod;
-            if (result < 0) {
-                exit(-1);
-            }
+			assert(result >= 0);
         }
         a = (a + a) % mod;
-        if (a < 0) {
-            exit(-1);
-        }
+		assert(a >= 0);
         b = b / 2;
     }
 
@@ -30,12 +20,8 @@ function i32 mulMod(i32 a, i32 b, i32 mod) {
 }
 
 function i32 bbsBits(i32 seed, i32 modulus, i32 count) {
-    if (count < 0) {
-        exit(-1);
-    }
-    if (modulus <= 1) {
-        exit(-1);
-    }
+	assert(count >= 0);
+	assert(modulus > 1);
 
     i32 result = 0;
     i32 sumMod = 1000000007;
@@ -49,9 +35,7 @@ function i32 bbsBits(i32 seed, i32 modulus, i32 count) {
     while (i < count) {
         seed = mulMod(seed, seed, modulus);
         result = (result + (seed % 2)) % sumMod;
-        if (result < 0) {
-            exit(-1);
-        }
+		assert(result >= 0);
         i = i + 1;
     }
 
