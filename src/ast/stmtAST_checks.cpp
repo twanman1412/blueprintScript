@@ -147,3 +147,21 @@ bool ExitStmtAST::checkNode(AnalysisContext& ctx) {
 
 	return true;
 }
+
+bool AssertStmtAST::checkNode(AnalysisContext& ctx) {
+	if (!expr->checkNode(ctx)) {
+		return false;
+	}
+
+	TypeAST::PrimitiveKind valueType;
+	if (!TypeChecker::getExprType(expr.get(), ctx, valueType)) {
+		return false;
+	}
+	if (valueType != TypeAST::BOOL) {
+		ctx.getLogger().errorln("Error: assert condition must be BOOL");
+		return false;
+	}
+
+	return true;
+}
+

@@ -23,6 +23,8 @@ std::unique_ptr<StmtAST> Parser::parseStatement() {
 			return parsePrintStatement();
 		case tok_exit:
 			return parseExitStatement();
+		case tok_assert:
+			return parseAssertStatement();
 		default:
 			logger.errorf("Unexpected token in statement: %d\n", lexer.getCurrentToken());
 			return nullptr;
@@ -245,5 +247,36 @@ std::unique_ptr<ExitStmtAST> Parser::parseExitStatement() {
 	lexer.getNextToken();
 
 	return std::make_unique<ExitStmtAST>(std::move(value));
+}
+
+std::unique_ptr<AssertStmtAST> Parser::parseAssertStatement() {
+	logger.debugln("Parsing assert statement...\n");
+	if (lexer.getCurrentToken() != tok_assert) {
+		logger.errorf("Expected 'assert', got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+
+	if (lexer.getCurrentToken() != '(') {
+		logger.errorf("Expected '(' after 'assert', got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+
+	auto value = parseExpression();
+
+	if (lexer.getCurrentToken() != ')') {
+		logger.errorf("Expected ')' after assert expression, got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+
+	if (lexer.getCurrentToken() != ';') {
+		logger.errorf("Expected ';' after assert statement, got: %d\n", lexer.getCurrentToken());
+		return nullptr;
+	}
+	lexer.getNextToken();
+
+	return std::make_unique<AssertStmtAST>(std::move(value));
 }
 

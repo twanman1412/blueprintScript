@@ -184,8 +184,21 @@ llvm::Value* CodeGenVisitor::getOrCreateErrorFormat() {
 }
 
 llvm::Value* CodeGenVisitor::getOrCreateErrorMessage(const std::string& kind) {
-    const std::string name = kind == "requires" ? "errmsg.requires" : "errmsg.ensures";
-    const std::string message = kind == "requires" ? "Contract violation: requires failed" : "Contract violation: ensures failed";
+    std::string name;
+    std::string message;
+    if (kind == "requires") {
+        name = "errmsg.requires";
+        message = "Contract violation: requires failed";
+    } else if (kind == "ensures") {
+        name = "errmsg.ensures";
+        message = "Contract violation: ensures failed";
+    } else if (kind == "assert") {
+        name = "errmsg.assert";
+        message = "Assertion failed";
+    } else {
+        name = "errmsg.unknown";
+        message = "Unknown error";
+    }
     auto* global = module->getNamedGlobal(name);
     if (!global) {
         global = builder->CreateGlobalString(message, name);
@@ -769,6 +782,32 @@ llvm::Value* CodeGenVisitor::visit(ExitStmtAST* node) {
     }
     builder->CreateCall(getOrCreateExit(), { exitCode });
     builder->CreateUnreachable();
+    return nullptr;
+}
+
+llvm::Value* CodeGenVisitor::visit(AssertStmtAST* node) {
+    if (mode == CodeGenMode::Optimise) {
+        return nullptr;
+    }
+
+    logCodegen("visit AssertStmtAST");
+    llvm::Value* value = node->getExpr()->accept(*this);
+    value = toBoolean(value);
+    if (!value) {
+        logCodegen("assert condition evaluation failed");
+        return nullptr;
+    }
+
+    llvm::Function* function = builder->GetInsertBlock()->getParent();
+    llvm::BasicBlock* okBlock = llvm::BasicBlock::Create(*context, "assert.ok", function);
+    llvm::BasicBlock* failBlock = llvm::BasicBlock::Create(*context, "assert.fail", function);
+
+    builder->CreateCondBr(value, okBlock, failBlock);
+
+    builder->SetInsertPoint(failBlock);
+    emitRuntimeError("assert");
+
+    builder->SetInsertPoint(okBlock);
     return nullptr;
 }
 

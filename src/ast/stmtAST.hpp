@@ -194,3 +194,17 @@ class ExitStmtAST : public StmtAST {
 	private:
 		std::unique_ptr<ExprAST> expr;
 };
+
+class AssertStmtAST : public StmtAST {
+	public:
+		AssertStmtAST(std::unique_ptr<ExprAST> expr)
+			: expr(std::move(expr)) {}
+
+		ExprAST *getExpr() const { return expr.get(); }
+		void printAST() const override { std::cout << "(AssertStmt "; expr->printAST(); std::cout << ")"; }
+		bool checkNode(AnalysisContext &ctx) override;
+		llvm::Value* accept(CodeGenVisitor &visitor) override;
+
+	private:
+		std::unique_ptr<ExprAST> expr;
+};

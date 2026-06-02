@@ -77,6 +77,11 @@ namespace {
                 simplifyExpr(exitStmt->getExpr(), simplifier)
             );
         }
+		if (auto* assertStmt = dynamic_cast<const AssertStmtAST*>(stmt)) {
+			return std::make_unique<AssertStmtAST>(
+				simplifyExpr(assertStmt->getExpr(), simplifier)
+			);
+		}
 
         return nullptr;
     }

@@ -34,6 +34,7 @@ Statement ::= "{" (Statement)* "}"
             | ReturnStmt
 			| PrintStmt
             | ExitStmt
+            | AssertStmt
 
 VarDeclStmt ::= Type Identifier "=" Expression ";"
 AssignStmt  ::= Identifier "=" Expression ";"
@@ -42,6 +43,7 @@ WhileStmt   ::= "while" "(" Expression ")" Block
 ReturnStmt  ::= "return" Expression? ";"
 PrintStmt   ::= "print" "(" Expression ")" ";"
 ExitStmt    ::= "exit" "(" Expression ")" ";"
+AssertStmt  ::= "assert" "(" Expression ")" ";"
 
 /* --- Expressions --- */
 Expression ::= LogicalOrExpr

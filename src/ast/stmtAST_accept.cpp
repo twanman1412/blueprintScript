@@ -10,3 +10,4 @@ llvm::Value* ReturnStmtAST::accept(CodeGenVisitor &visitor) { return visitor.vis
 llvm::Value* ExprStmtAST::accept(CodeGenVisitor &visitor) { return visitor.visit(this); }
 llvm::Value* PrintStmtAST::accept(CodeGenVisitor &visitor) { return visitor.visit(this); }
 llvm::Value* ExitStmtAST::accept(CodeGenVisitor &visitor) { return visitor.visit(this); }
+llvm::Value* AssertStmtAST::accept(CodeGenVisitor &visitor) { return visitor.visit(this); }

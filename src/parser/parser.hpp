@@ -41,6 +41,7 @@ class Parser {
 		std::unique_ptr<ReturnStmtAST> parseReturnStatement();
 		std::unique_ptr<PrintStmtAST> parsePrintStatement();
 		std::unique_ptr<ExitStmtAST> parseExitStatement();
+		std::unique_ptr<AssertStmtAST> parseAssertStatement();
 
 		std::unique_ptr<TypeAST> parseType();
 
