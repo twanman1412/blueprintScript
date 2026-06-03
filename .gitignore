@@ -24,5 +24,7 @@ tmp/
 build/
 
 # Include example bpf files
-examples/*
-!examples/*.bps
+examples/**/*
+!examples/**/
+!examples/**/*.bps
+!examples/**/*.md
