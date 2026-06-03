@@ -1,0 +1,30 @@
+# started on Wed Jun  3 13:40:31 2026
+
+
+ Performance counter stats for './fibonacci' (10 runs):
+
+                 0      context-switches:u               #      0.0 cs/sec  cs_per_second     
+                 0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
+                60      page-faults:u                    #  11235.7 faults/sec  page_faults_per_second  ( +-  0.56% )
+              5.34 msec task-clock:u                     #      0.8 CPUs  CPUs_utilized         ( +-  0.71% )
+            13,506      branch-misses:u                  #      0.1 %  branch_miss_rate         ( +-  3.19% )  (42.73%)
+        14,709,207      branches:u                       #   2754.5 M/sec  branch_frequency     ( +-  0.23% )  (42.69%)
+        23,941,606      cpu-cycles:u                     #      4.5 GHz  cycles_frequency       ( +-  0.43% )  (61.91%)
+        96,643,627      instructions:u                   #      3.8 instructions  insn_per_cycle  ( +-  0.25% )  (57.27%)
+           261,932      stalled-cycles-frontend:u        #     0.01 frontend_cycles_idle        ( +-  7.83% )  (57.31%)
+
+       # Table of individual measurements:
+       0.005671610 (+0.000080378) #
+       0.005520362 (-0.000070870) #
+       0.005523979 (-0.000067253) #
+       0.005470237 (-0.000120995) #
+       0.005582471 (-0.000008761) #
+       0.005519831 (-0.000071401) #
+       0.005643568 (+0.000052336) #
+       0.005878245 (+0.000287013) #
+       0.005631865 (+0.000040633) #
+       0.005470156 (-0.000121076) #
+
+       # Final result:
+       0.005591232 +- 0.000039051 seconds time elapsed  ( +-  0.70% )
+

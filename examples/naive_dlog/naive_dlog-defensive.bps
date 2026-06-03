@@ -65,21 +65,4 @@ function i32 discreteLog(i32 base, i32 target, i32 mod) {
     return -1;
 }
 
-function i32 dlogStress() {
-    i32 modulus = 1000003;
-    i32 base = 2;
-    i32 sum = 0;
-    i32 i = 1;
-    i32 iterations = 100000;
-
-    while (i <= iterations) {
-        i32 target = modExp(base, i, modulus);
-        i32 res = discreteLog(base, target, modulus);
-        sum = (sum + res) % modulus;
-        i = i + 1;
-    }
-
-    return sum;
-}
-
-print(dlogStress());
+print(discreteLog(2, 16, 17));

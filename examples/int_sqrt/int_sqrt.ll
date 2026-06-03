@@ -44,21 +44,15 @@ else16:                                           ; preds = %else
   br label %ifcont
 }
 
-; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(none)
-define noundef range(i32 -1000000006, 1000000007) i32 @intSqrtStress() local_unnamed_addr #0 {
+; Function Attrs: nofree nounwind
+define noundef i32 @main() local_unnamed_addr #1 {
 entry:
-  br label %loopbody
+  br label %loopbody.i
 
-loopbody:                                         ; preds = %entry, %intSqrt.exit
-  %sum.013 = phi i32 [ 0, %entry ], [ %modtmp, %intSqrt.exit ]
-  %i.012 = phi i32 [ 0, %entry ], [ %addtmp7, %intSqrt.exit ]
-  %eqtmp.i = icmp eq i32 %i.012, 0
-  br i1 %eqtmp.i, label %intSqrt.exit, label %loopbody.i
-
-loopbody.i:                                       ; preds = %loopbody, %ifcont.i
-  %result.036.i = phi i32 [ %result.1.i, %ifcont.i ], [ 0, %loopbody ]
-  %low.035.i = phi i32 [ %low.1.i, %ifcont.i ], [ 0, %loopbody ]
-  %high.034.i = phi i32 [ %high.1.i, %ifcont.i ], [ %i.012, %loopbody ]
+loopbody.i:                                       ; preds = %ifcont.i, %entry
+  %result.036.i = phi i32 [ %result.1.i, %ifcont.i ], [ 0, %entry ]
+  %low.035.i = phi i32 [ %low.1.i, %ifcont.i ], [ 0, %entry ]
+  %high.034.i = phi i32 [ %high.1.i, %ifcont.i ], [ 70, %entry ]
   %subtmp.i = sub i32 %high.034.i, %low.035.i
   %divtmp.i = sdiv i32 %subtmp.i, 2
   %addtmp.i = add i32 %divtmp.i, %low.035.i
@@ -66,7 +60,7 @@ loopbody.i:                                       ; preds = %loopbody, %ifcont.i
   br i1 %eqtmp9.i, label %ifcont.i, label %else.i
 
 else.i:                                           ; preds = %loopbody.i
-  %divtmp13.i = sdiv i32 %i.012, %addtmp.i
+  %divtmp13.i = sdiv i32 70, %addtmp.i
   %letmp14.not.i = icmp sgt i32 %addtmp.i, %divtmp13.i
   br i1 %letmp14.not.i, label %else16.i, label %then15.i
 
@@ -78,76 +72,15 @@ ifcont.i:                                         ; preds = %else16.i, %then15.i
   br i1 %letmp.not.i, label %intSqrt.exit, label %loopbody.i
 
 then15.i:                                         ; preds = %else.i
-  %addtmp20.i = add i32 %addtmp.i, 1
+  %addtmp20.i = add nsw i32 %addtmp.i, 1
   br label %ifcont.i
 
 else16.i:                                         ; preds = %else.i
   %subtmp22.i = add nsw i32 %addtmp.i, -1
   br label %ifcont.i
 
-intSqrt.exit:                                     ; preds = %ifcont.i, %loopbody
-  %common.ret.op.i = phi i32 [ 0, %loopbody ], [ %result.1.i, %ifcont.i ]
-  %addtmp = add i32 %common.ret.op.i, %sum.013
-  %modtmp = srem i32 %addtmp, 1000000007
-  %addtmp7 = add nuw nsw i32 %i.012, 1
-  %letmp = icmp samesign ult i32 %i.012, 100000000
-  br i1 %letmp, label %loopbody, label %loopexit
-
-loopexit:                                         ; preds = %intSqrt.exit
-  ret i32 %modtmp
-}
-
-; Function Attrs: nofree nounwind
-define noundef i32 @main() local_unnamed_addr #1 {
-entry:
-  br label %loopbody.i
-
-loopbody.i:                                       ; preds = %intSqrt.exit.i, %entry
-  %sum.013.i = phi i32 [ 0, %entry ], [ %modtmp.i, %intSqrt.exit.i ]
-  %i.012.i = phi i32 [ 0, %entry ], [ %addtmp7.i, %intSqrt.exit.i ]
-  %eqtmp.i.i = icmp eq i32 %i.012.i, 0
-  br i1 %eqtmp.i.i, label %intSqrt.exit.i, label %loopbody.i.i
-
-loopbody.i.i:                                     ; preds = %loopbody.i, %ifcont.i.i
-  %result.036.i.i = phi i32 [ %result.1.i.i, %ifcont.i.i ], [ 0, %loopbody.i ]
-  %low.035.i.i = phi i32 [ %low.1.i.i, %ifcont.i.i ], [ 0, %loopbody.i ]
-  %high.034.i.i = phi i32 [ %high.1.i.i, %ifcont.i.i ], [ %i.012.i, %loopbody.i ]
-  %subtmp.i.i = sub i32 %high.034.i.i, %low.035.i.i
-  %divtmp.i.i = sdiv i32 %subtmp.i.i, 2
-  %addtmp.i.i = add i32 %divtmp.i.i, %low.035.i.i
-  %eqtmp9.i.i = icmp eq i32 %addtmp.i.i, 0
-  br i1 %eqtmp9.i.i, label %ifcont.i.i, label %else.i.i
-
-else.i.i:                                         ; preds = %loopbody.i.i
-  %divtmp13.i.i = sdiv i32 %i.012.i, %addtmp.i.i
-  %letmp14.not.i.i = icmp sgt i32 %addtmp.i.i, %divtmp13.i.i
-  br i1 %letmp14.not.i.i, label %else16.i.i, label %then15.i.i
-
-ifcont.i.i:                                       ; preds = %else16.i.i, %then15.i.i, %loopbody.i.i
-  %high.1.i.i = phi i32 [ %subtmp22.i.i, %else16.i.i ], [ %high.034.i.i, %then15.i.i ], [ %high.034.i.i, %loopbody.i.i ]
-  %low.1.i.i = phi i32 [ %low.035.i.i, %else16.i.i ], [ %addtmp20.i.i, %then15.i.i ], [ 1, %loopbody.i.i ]
-  %result.1.i.i = phi i32 [ %result.036.i.i, %else16.i.i ], [ %addtmp.i.i, %then15.i.i ], [ 0, %loopbody.i.i ]
-  %letmp.not.i.i = icmp sgt i32 %low.1.i.i, %high.1.i.i
-  br i1 %letmp.not.i.i, label %intSqrt.exit.i, label %loopbody.i.i
-
-then15.i.i:                                       ; preds = %else.i.i
-  %addtmp20.i.i = add i32 %addtmp.i.i, 1
-  br label %ifcont.i.i
-
-else16.i.i:                                       ; preds = %else.i.i
-  %subtmp22.i.i = add nsw i32 %addtmp.i.i, -1
-  br label %ifcont.i.i
-
-intSqrt.exit.i:                                   ; preds = %ifcont.i.i, %loopbody.i
-  %common.ret.op.i.i = phi i32 [ 0, %loopbody.i ], [ %result.1.i.i, %ifcont.i.i ]
-  %addtmp.i = add i32 %common.ret.op.i.i, %sum.013.i
-  %modtmp.i = srem i32 %addtmp.i, 1000000007
-  %addtmp7.i = add nuw nsw i32 %i.012.i, 1
-  %letmp.i = icmp samesign ult i32 %i.012.i, 100000000
-  br i1 %letmp.i, label %loopbody.i, label %intSqrtStress.exit
-
-intSqrtStress.exit:                               ; preds = %intSqrt.exit.i
-  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %modtmp.i)
+intSqrt.exit:                                     ; preds = %ifcont.i
+  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %result.1.i)
   ret i32 0
 }
 

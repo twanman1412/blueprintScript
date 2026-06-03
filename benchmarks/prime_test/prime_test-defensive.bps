@@ -1,0 +1,39 @@
+function bool isPrime(i32 n) {
+	assert(n >= 0);
+    if (n <= 1) {
+        return false;
+    }
+    if (n <= 3) {
+        return true;
+    }
+    if (n % 2 == 0) {
+        return false;
+    }
+
+    i32 i = 3;
+    while (i <= n / i) {
+        if (n % i == 0) {
+            return false;
+        }
+        i = i + 2;
+    }
+
+    return true;
+}
+
+function i32 primeStress() {
+    i32 count = 0;
+    i32 i = 2;
+    i32 limit = 50000000;
+
+    while (i <= limit) {
+        if (isPrime(i)) {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+
+    return count;
+}
+
+print(primeStress());

@@ -1,0 +1,27 @@
+blueprint fibonacci {
+    input: n: i32;
+    output: i32;
+    default: n == 0 ==> 0;
+    default: n == 1 ==> 1;
+    requires: n >= 0;
+    ensures: fibonacci >= 0;
+}
+
+function i32 fibonacci(i32 n) {
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+function i32 fibonacciStress() {
+	i32 result = 0;
+	i32 iterations = 45;
+	i32 i = 0;
+
+	while (i <= iterations) {
+		result = result + fibonacci(i);
+		i = i + 1;
+	}
+
+	return result;
+}
+
+print(fibonacciStress());

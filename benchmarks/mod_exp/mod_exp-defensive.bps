@@ -1,0 +1,62 @@
+function i32 mulMod(i32 a, i32 b, i32 mod) {
+    i32 result = 0;
+    a = a % mod;
+    if (a < 0) {
+        a = a + mod;
+    }
+
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result + a) % mod;
+			assert(result >= 0);
+        }
+        a = (a + a) % mod;
+		assert(a > 0);
+        b = b / 2;
+    }
+
+    return result;
+}
+
+function i32 modExp(i32 base, i32 exp, i32 mod) {
+	assert(exp >= 0);
+	assert(mod > 1);
+
+    i32 result = 1;
+    base = base % mod;
+    if (base < 0) {
+        base = base + mod;
+    }
+
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = mulMod(result, base, mod);
+			assert(result >= 0);
+        }
+        exp = exp / 2;
+        base = mulMod(base, base, mod);
+		assert(base >= 0);
+    }
+
+	assert(result >= 0);
+	assert(result < mod);
+    return result;
+}
+
+function i32 modExpStress() {
+    i32 result = 0;
+    i32 maxExponent = 2147483647;
+    i32 modulus = 1000000007;
+    i32 iterations = 1000000;
+    i32 i = 1;
+
+    while (i <= iterations) {
+        i32 currentMod = modExp(i, maxExponent, modulus);
+        result = (result + currentMod) % modulus;
+        i = i + 1;
+    }
+
+    return result;
+}
+
+print(modExpStress());

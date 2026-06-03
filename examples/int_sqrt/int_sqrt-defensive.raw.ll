@@ -74,47 +74,10 @@ ifcont15:                                         ; preds = %else14, %then13
   br label %ifcont
 }
 
-; Function Attrs: nounwind willreturn
-define noundef i32 @intSqrtStress() #0 {
-entry:
-  %limit = alloca i32, align 4
-  %i = alloca i32, align 4
-  %modulus = alloca i32, align 4
-  %sum = alloca i32, align 4
-  store i32 0, ptr %sum, align 4
-  store i32 1000000007, ptr %modulus, align 4
-  store i32 0, ptr %i, align 4
-  store i32 100000000, ptr %limit, align 4
-  br label %loopcond
-
-loopcond:                                         ; preds = %loopbody, %entry
-  %i1 = load i32, ptr %i, align 4
-  %limit2 = load i32, ptr %limit, align 4
-  %letmp = icmp sle i32 %i1, %limit2
-  br i1 %letmp, label %loopbody, label %loopexit
-
-loopbody:                                         ; preds = %loopcond
-  %sum3 = load i32, ptr %sum, align 4
-  %i4 = load i32, ptr %i, align 4
-  %calltmp = call i32 @intSqrt(i32 %i4)
-  %addtmp = add i32 %sum3, %calltmp
-  %modulus5 = load i32, ptr %modulus, align 4
-  %modtmp = srem i32 %addtmp, %modulus5
-  store i32 %modtmp, ptr %sum, align 4
-  %i6 = load i32, ptr %i, align 4
-  %addtmp7 = add i32 %i6, 1
-  store i32 %addtmp7, ptr %i, align 4
-  br label %loopcond
-
-loopexit:                                         ; preds = %loopcond
-  %sum8 = load i32, ptr %sum, align 4
-  ret i32 %sum8
-}
-
 ; Function Attrs: nounwind
 define noundef i32 @main() #1 {
 entry:
-  %calltmp = call i32 @intSqrtStress()
+  %calltmp = call i32 @intSqrt(i32 70)
   %0 = call i32 (ptr, ...) @printf(ptr @fmt, i32 %calltmp)
   ret i32 0
 }

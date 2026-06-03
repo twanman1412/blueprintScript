@@ -1,0 +1,33 @@
+blueprint isSquare {
+    input: n: i32;
+    output: bool;
+    default: n == 0 ==> true;
+    requires: n >= 0;
+}
+
+function bool isSquare(i32 n) {
+    i32 odd = 1;
+    while (n > 0) {
+        n = n - odd;
+        odd = odd + 2;
+    }
+
+    return n == 0;
+}
+
+function i32 squareStress() {
+    i32 count = 0;
+    i32 i = 0;
+    i32 limit = 10000000;
+
+    while (i <= limit) {
+        if (isSquare(i)) {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+
+    return count;
+}
+
+print(squareStress());

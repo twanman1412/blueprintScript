@@ -52,12 +52,4 @@ function i32 bbsBits(i32 seed, i32 modulus, i32 count) {
     return result;
 }
 
-function i32 bbsStress() {
-    i32 seed = 123456789;
-    i32 modulus = 1000003;
-    i32 count = 200000000;
-
-    return bbsBits(seed, modulus, count);
-}
-
-print(bbsStress());
+print(bbsBits(123456789, 1000003, 10));

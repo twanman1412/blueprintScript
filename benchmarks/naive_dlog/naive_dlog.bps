@@ -1,0 +1,94 @@
+blueprint mulMod {
+    input: a: i32, b: i32, mod: i32;
+    output: i32;
+    default: a == 0 ==> 0;
+    default: b == 0 ==> 0;
+    requires: b >= 0 && mod > 1;
+    ensures: mulMod >= 0 && mulMod < mod;
+}
+
+blueprint modExp {
+    input: base: i32, exp: i32, mod: i32;
+    output: i32;
+    default: exp == 0 ==> 1;
+    requires: exp >= 0 && mod > 1;
+    ensures: modExp >= 0 && modExp < mod;
+}
+
+blueprint discreteLog {
+    input: base: i32, target: i32, mod: i32;
+    output: i32;
+    default: target == 1 ==> 0;
+    requires: mod > 1;
+    ensures: discreteLog >= -1 && discreteLog < mod;
+}
+
+function i32 mulMod(i32 a, i32 b, i32 mod) {
+    i32 result = 0;
+    a = a % mod;
+    if (a < 0) {
+        a = a + mod;
+    }
+
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result + a) % mod;
+        }
+        a = (a + a) % mod;
+        b = b / 2;
+    }
+
+    return result;
+}
+
+function i32 modExp(i32 base, i32 exp, i32 mod) {
+    i32 result = 1;
+    base = base % mod;
+    if (base < 0) {
+        base = base + mod;
+    }
+
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = mulMod(result, base, mod);
+        }
+        exp = exp / 2;
+        base = mulMod(base, base, mod);
+    }
+
+    return result;
+}
+
+function i32 discreteLog(i32 base, i32 target, i32 mod) {
+    i32 value = 1;
+    i32 x = 0;
+
+    while (x < mod) {
+        if (value == target) {
+            return x;
+        }
+        value = mulMod(value, base, mod);
+        x = x + 1;
+    }
+
+    return -1;
+}
+
+function i32 dlogStress() {
+    i32 modulus = 1000003;
+    i32 base = 2;
+    i32 sum = 0;
+    i32 i = 1;
+    i32 iterations = 100000;
+
+    while (i <= iterations) {
+        i32 target = modExp(base, i, modulus);
+        i32 res = discreteLog(base, target, modulus);
+        sum = (sum + res) % modulus;
+        i = i + 1;
+    }
+
+    return sum;
+}
+
+print(dlogStress());

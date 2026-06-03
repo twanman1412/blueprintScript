@@ -106,22 +106,15 @@ mulMod.exit:                                      ; preds = %ifcont17.i, %loopbo
   br i1 %lttmp9, label %loopbody, label %common.ret
 }
 
-; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(none)
-define noundef range(i32 -1000000006, 1000000007) i32 @bbsStress() local_unnamed_addr #0 {
+; Function Attrs: nofree nounwind
+define noundef i32 @main() local_unnamed_addr #1 {
 entry:
-  br label %loopbody.i
+  br label %loopbody.i.i
 
-loopbody.i:                                       ; preds = %mulMod.exit.i, %entry
-  %seed.134.i = phi i32 [ 456420, %entry ], [ %common.ret.op.i.i, %mulMod.exit.i ]
-  %i.033.i = phi i32 [ 0, %entry ], [ %addtmp20.i, %mulMod.exit.i ]
-  %result.032.i = phi i32 [ 0, %entry ], [ %modtmp18.i, %mulMod.exit.i ]
-  %eqtmp3.i.i = icmp eq i32 %seed.134.i, 0
-  br i1 %eqtmp3.i.i, label %mulMod.exit.i, label %loopbody.i.i
-
-loopbody.i.i:                                     ; preds = %loopbody.i, %ifcont17.i.i
-  %a.147.i.i.in = phi i32 [ %addtmp25.i.i, %ifcont17.i.i ], [ %seed.134.i, %loopbody.i ]
-  %b.046.i.i = phi i32 [ %divtmp44.i.i, %ifcont17.i.i ], [ %seed.134.i, %loopbody.i ]
-  %result.045.i.i = phi i32 [ %result.1.i.i, %ifcont17.i.i ], [ 0, %loopbody.i ]
+loopbody.i.i:                                     ; preds = %entry, %ifcont17.i.i
+  %a.147.i.i.in = phi i32 [ %addtmp25.i.i, %ifcont17.i.i ], [ 456420, %entry ]
+  %b.046.i.i = phi i32 [ %divtmp44.i.i, %ifcont17.i.i ], [ 456420, %entry ]
+  %result.045.i.i = phi i32 [ %result.1.i.i, %ifcont17.i.i ], [ 0, %entry ]
   %a.147.i.i = urem i32 %a.147.i.i.in, 1000003
   %modtmp13.i.i = and i32 %b.046.i.i, 1
   %eqtmp14.not.i.i = icmp eq i32 %modtmp13.i.i, 0
@@ -139,63 +132,268 @@ ifcont17.i.i:                                     ; preds = %then15.i.i, %loopbo
   %gttmp.not.i.i = icmp eq i32 %divtmp44.i.i, 0
   br i1 %gttmp.not.i.i, label %mulMod.exit.i, label %loopbody.i.i
 
-mulMod.exit.i:                                    ; preds = %ifcont17.i.i, %loopbody.i
-  %common.ret.op.i.i = phi i32 [ 0, %loopbody.i ], [ %result.1.i.i, %ifcont17.i.i ]
-  %modtmp15.i = and i32 %common.ret.op.i.i, 1
-  %addtmp16.i = add nsw i32 %modtmp15.i, %result.032.i
-  %modtmp18.i = srem i32 %addtmp16.i, 1000000007
-  %addtmp20.i = add nuw nsw i32 %i.033.i, 1
-  %lttmp9.i = icmp samesign ult i32 %i.033.i, 199999999
-  br i1 %lttmp9.i, label %loopbody.i, label %bbsBits.exit
+mulMod.exit.i:                                    ; preds = %ifcont17.i.i
+  %eqtmp3.i.i.1 = icmp eq i32 %result.1.i.i, 0
+  br i1 %eqtmp3.i.i.1, label %mulMod.exit.i.1, label %loopbody.i.i.1
 
-bbsBits.exit:                                     ; preds = %mulMod.exit.i
-  ret i32 %modtmp18.i
-}
+loopbody.i.i.1:                                   ; preds = %mulMod.exit.i, %ifcont17.i.i.1
+  %a.147.i.i.in.1 = phi i32 [ %addtmp25.i.i.1, %ifcont17.i.i.1 ], [ %result.1.i.i, %mulMod.exit.i ]
+  %b.046.i.i.1 = phi i32 [ %divtmp44.i.i.1, %ifcont17.i.i.1 ], [ %result.1.i.i, %mulMod.exit.i ]
+  %result.045.i.i.1 = phi i32 [ %result.1.i.i.1, %ifcont17.i.i.1 ], [ 0, %mulMod.exit.i ]
+  %a.147.i.i.1 = urem i32 %a.147.i.i.in.1, 1000003
+  %modtmp13.i.i.1 = and i32 %b.046.i.i.1, 1
+  %eqtmp14.not.i.i.1 = icmp eq i32 %modtmp13.i.i.1, 0
+  br i1 %eqtmp14.not.i.i.1, label %ifcont17.i.i.1, label %then15.i.i.1
 
-; Function Attrs: nofree nounwind
-define noundef i32 @main() local_unnamed_addr #1 {
-entry:
-  br label %loopbody.i.i
+then15.i.i.1:                                     ; preds = %loopbody.i.i.1
+  %addtmp20.i.i.1 = add nuw nsw i32 %result.045.i.i.1, %a.147.i.i.1
+  %modtmp22.i.i.1 = urem i32 %addtmp20.i.i.1, 1000003
+  br label %ifcont17.i.i.1
 
-loopbody.i.i:                                     ; preds = %mulMod.exit.i.i, %entry
-  %seed.134.i.i = phi i32 [ 456420, %entry ], [ %common.ret.op.i.i.i, %mulMod.exit.i.i ]
-  %i.033.i.i = phi i32 [ 0, %entry ], [ %addtmp20.i.i, %mulMod.exit.i.i ]
-  %result.032.i.i = phi i32 [ 0, %entry ], [ %modtmp18.i.i, %mulMod.exit.i.i ]
-  %eqtmp3.i.i.i = icmp eq i32 %seed.134.i.i, 0
-  br i1 %eqtmp3.i.i.i, label %mulMod.exit.i.i, label %loopbody.i.i.i
+ifcont17.i.i.1:                                   ; preds = %then15.i.i.1, %loopbody.i.i.1
+  %result.1.i.i.1 = phi i32 [ %modtmp22.i.i.1, %then15.i.i.1 ], [ %result.045.i.i.1, %loopbody.i.i.1 ]
+  %addtmp25.i.i.1 = shl nuw nsw i32 %a.147.i.i.1, 1
+  %divtmp44.i.i.1 = lshr i32 %b.046.i.i.1, 1
+  %gttmp.not.i.i.1 = icmp eq i32 %divtmp44.i.i.1, 0
+  br i1 %gttmp.not.i.i.1, label %mulMod.exit.i.1, label %loopbody.i.i.1
 
-loopbody.i.i.i:                                   ; preds = %loopbody.i.i, %ifcont17.i.i.i
-  %a.147.i.i.in.i = phi i32 [ %addtmp25.i.i.i, %ifcont17.i.i.i ], [ %seed.134.i.i, %loopbody.i.i ]
-  %b.046.i.i.i = phi i32 [ %divtmp44.i.i.i, %ifcont17.i.i.i ], [ %seed.134.i.i, %loopbody.i.i ]
-  %result.045.i.i.i = phi i32 [ %result.1.i.i.i, %ifcont17.i.i.i ], [ 0, %loopbody.i.i ]
-  %a.147.i.i.i = urem i32 %a.147.i.i.in.i, 1000003
-  %modtmp13.i.i.i = and i32 %b.046.i.i.i, 1
-  %eqtmp14.not.i.i.i = icmp eq i32 %modtmp13.i.i.i, 0
-  br i1 %eqtmp14.not.i.i.i, label %ifcont17.i.i.i, label %then15.i.i.i
+mulMod.exit.i.1:                                  ; preds = %ifcont17.i.i.1, %mulMod.exit.i
+  %common.ret.op.i.i.1 = phi i32 [ 0, %mulMod.exit.i ], [ %result.1.i.i.1, %ifcont17.i.i.1 ]
+  %eqtmp3.i.i.2 = icmp eq i32 %common.ret.op.i.i.1, 0
+  br i1 %eqtmp3.i.i.2, label %mulMod.exit.i.2, label %loopbody.i.i.2
 
-then15.i.i.i:                                     ; preds = %loopbody.i.i.i
-  %addtmp20.i.i.i = add nuw nsw i32 %result.045.i.i.i, %a.147.i.i.i
-  %modtmp22.i.i.i = urem i32 %addtmp20.i.i.i, 1000003
-  br label %ifcont17.i.i.i
+loopbody.i.i.2:                                   ; preds = %mulMod.exit.i.1, %ifcont17.i.i.2
+  %a.147.i.i.in.2 = phi i32 [ %addtmp25.i.i.2, %ifcont17.i.i.2 ], [ %common.ret.op.i.i.1, %mulMod.exit.i.1 ]
+  %b.046.i.i.2 = phi i32 [ %divtmp44.i.i.2, %ifcont17.i.i.2 ], [ %common.ret.op.i.i.1, %mulMod.exit.i.1 ]
+  %result.045.i.i.2 = phi i32 [ %result.1.i.i.2, %ifcont17.i.i.2 ], [ 0, %mulMod.exit.i.1 ]
+  %a.147.i.i.2 = urem i32 %a.147.i.i.in.2, 1000003
+  %modtmp13.i.i.2 = and i32 %b.046.i.i.2, 1
+  %eqtmp14.not.i.i.2 = icmp eq i32 %modtmp13.i.i.2, 0
+  br i1 %eqtmp14.not.i.i.2, label %ifcont17.i.i.2, label %then15.i.i.2
 
-ifcont17.i.i.i:                                   ; preds = %then15.i.i.i, %loopbody.i.i.i
-  %result.1.i.i.i = phi i32 [ %modtmp22.i.i.i, %then15.i.i.i ], [ %result.045.i.i.i, %loopbody.i.i.i ]
-  %addtmp25.i.i.i = shl nuw nsw i32 %a.147.i.i.i, 1
-  %divtmp44.i.i.i = lshr i32 %b.046.i.i.i, 1
-  %gttmp.not.i.i.i = icmp eq i32 %divtmp44.i.i.i, 0
-  br i1 %gttmp.not.i.i.i, label %mulMod.exit.i.i, label %loopbody.i.i.i
+then15.i.i.2:                                     ; preds = %loopbody.i.i.2
+  %addtmp20.i.i.2 = add nuw nsw i32 %result.045.i.i.2, %a.147.i.i.2
+  %modtmp22.i.i.2 = urem i32 %addtmp20.i.i.2, 1000003
+  br label %ifcont17.i.i.2
 
-mulMod.exit.i.i:                                  ; preds = %ifcont17.i.i.i, %loopbody.i.i
-  %common.ret.op.i.i.i = phi i32 [ 0, %loopbody.i.i ], [ %result.1.i.i.i, %ifcont17.i.i.i ]
-  %modtmp15.i.i = and i32 %common.ret.op.i.i.i, 1
-  %addtmp16.i.i = add nsw i32 %modtmp15.i.i, %result.032.i.i
-  %modtmp18.i.i = srem i32 %addtmp16.i.i, 1000000007
-  %addtmp20.i.i = add nuw nsw i32 %i.033.i.i, 1
-  %lttmp9.i.i = icmp samesign ult i32 %i.033.i.i, 199999999
-  br i1 %lttmp9.i.i, label %loopbody.i.i, label %bbsStress.exit
+ifcont17.i.i.2:                                   ; preds = %then15.i.i.2, %loopbody.i.i.2
+  %result.1.i.i.2 = phi i32 [ %modtmp22.i.i.2, %then15.i.i.2 ], [ %result.045.i.i.2, %loopbody.i.i.2 ]
+  %addtmp25.i.i.2 = shl nuw nsw i32 %a.147.i.i.2, 1
+  %divtmp44.i.i.2 = lshr i32 %b.046.i.i.2, 1
+  %gttmp.not.i.i.2 = icmp eq i32 %divtmp44.i.i.2, 0
+  br i1 %gttmp.not.i.i.2, label %mulMod.exit.i.2, label %loopbody.i.i.2
 
-bbsStress.exit:                                   ; preds = %mulMod.exit.i.i
-  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %modtmp18.i.i)
+mulMod.exit.i.2:                                  ; preds = %ifcont17.i.i.2, %mulMod.exit.i.1
+  %common.ret.op.i.i.2 = phi i32 [ 0, %mulMod.exit.i.1 ], [ %result.1.i.i.2, %ifcont17.i.i.2 ]
+  %eqtmp3.i.i.3 = icmp eq i32 %common.ret.op.i.i.2, 0
+  br i1 %eqtmp3.i.i.3, label %mulMod.exit.i.3, label %loopbody.i.i.3
+
+loopbody.i.i.3:                                   ; preds = %mulMod.exit.i.2, %ifcont17.i.i.3
+  %a.147.i.i.in.3 = phi i32 [ %addtmp25.i.i.3, %ifcont17.i.i.3 ], [ %common.ret.op.i.i.2, %mulMod.exit.i.2 ]
+  %b.046.i.i.3 = phi i32 [ %divtmp44.i.i.3, %ifcont17.i.i.3 ], [ %common.ret.op.i.i.2, %mulMod.exit.i.2 ]
+  %result.045.i.i.3 = phi i32 [ %result.1.i.i.3, %ifcont17.i.i.3 ], [ 0, %mulMod.exit.i.2 ]
+  %a.147.i.i.3 = urem i32 %a.147.i.i.in.3, 1000003
+  %modtmp13.i.i.3 = and i32 %b.046.i.i.3, 1
+  %eqtmp14.not.i.i.3 = icmp eq i32 %modtmp13.i.i.3, 0
+  br i1 %eqtmp14.not.i.i.3, label %ifcont17.i.i.3, label %then15.i.i.3
+
+then15.i.i.3:                                     ; preds = %loopbody.i.i.3
+  %addtmp20.i.i.3 = add nuw nsw i32 %result.045.i.i.3, %a.147.i.i.3
+  %modtmp22.i.i.3 = urem i32 %addtmp20.i.i.3, 1000003
+  br label %ifcont17.i.i.3
+
+ifcont17.i.i.3:                                   ; preds = %then15.i.i.3, %loopbody.i.i.3
+  %result.1.i.i.3 = phi i32 [ %modtmp22.i.i.3, %then15.i.i.3 ], [ %result.045.i.i.3, %loopbody.i.i.3 ]
+  %addtmp25.i.i.3 = shl nuw nsw i32 %a.147.i.i.3, 1
+  %divtmp44.i.i.3 = lshr i32 %b.046.i.i.3, 1
+  %gttmp.not.i.i.3 = icmp eq i32 %divtmp44.i.i.3, 0
+  br i1 %gttmp.not.i.i.3, label %mulMod.exit.i.3, label %loopbody.i.i.3
+
+mulMod.exit.i.3:                                  ; preds = %ifcont17.i.i.3, %mulMod.exit.i.2
+  %common.ret.op.i.i.3 = phi i32 [ 0, %mulMod.exit.i.2 ], [ %result.1.i.i.3, %ifcont17.i.i.3 ]
+  %eqtmp3.i.i.4 = icmp eq i32 %common.ret.op.i.i.3, 0
+  br i1 %eqtmp3.i.i.4, label %mulMod.exit.i.4, label %loopbody.i.i.4
+
+loopbody.i.i.4:                                   ; preds = %mulMod.exit.i.3, %ifcont17.i.i.4
+  %a.147.i.i.in.4 = phi i32 [ %addtmp25.i.i.4, %ifcont17.i.i.4 ], [ %common.ret.op.i.i.3, %mulMod.exit.i.3 ]
+  %b.046.i.i.4 = phi i32 [ %divtmp44.i.i.4, %ifcont17.i.i.4 ], [ %common.ret.op.i.i.3, %mulMod.exit.i.3 ]
+  %result.045.i.i.4 = phi i32 [ %result.1.i.i.4, %ifcont17.i.i.4 ], [ 0, %mulMod.exit.i.3 ]
+  %a.147.i.i.4 = urem i32 %a.147.i.i.in.4, 1000003
+  %modtmp13.i.i.4 = and i32 %b.046.i.i.4, 1
+  %eqtmp14.not.i.i.4 = icmp eq i32 %modtmp13.i.i.4, 0
+  br i1 %eqtmp14.not.i.i.4, label %ifcont17.i.i.4, label %then15.i.i.4
+
+then15.i.i.4:                                     ; preds = %loopbody.i.i.4
+  %addtmp20.i.i.4 = add nuw nsw i32 %result.045.i.i.4, %a.147.i.i.4
+  %modtmp22.i.i.4 = urem i32 %addtmp20.i.i.4, 1000003
+  br label %ifcont17.i.i.4
+
+ifcont17.i.i.4:                                   ; preds = %then15.i.i.4, %loopbody.i.i.4
+  %result.1.i.i.4 = phi i32 [ %modtmp22.i.i.4, %then15.i.i.4 ], [ %result.045.i.i.4, %loopbody.i.i.4 ]
+  %addtmp25.i.i.4 = shl nuw nsw i32 %a.147.i.i.4, 1
+  %divtmp44.i.i.4 = lshr i32 %b.046.i.i.4, 1
+  %gttmp.not.i.i.4 = icmp eq i32 %divtmp44.i.i.4, 0
+  br i1 %gttmp.not.i.i.4, label %mulMod.exit.i.4, label %loopbody.i.i.4
+
+mulMod.exit.i.4:                                  ; preds = %ifcont17.i.i.4, %mulMod.exit.i.3
+  %common.ret.op.i.i.4 = phi i32 [ 0, %mulMod.exit.i.3 ], [ %result.1.i.i.4, %ifcont17.i.i.4 ]
+  %eqtmp3.i.i.5 = icmp eq i32 %common.ret.op.i.i.4, 0
+  br i1 %eqtmp3.i.i.5, label %mulMod.exit.i.5, label %loopbody.i.i.5
+
+loopbody.i.i.5:                                   ; preds = %mulMod.exit.i.4, %ifcont17.i.i.5
+  %a.147.i.i.in.5 = phi i32 [ %addtmp25.i.i.5, %ifcont17.i.i.5 ], [ %common.ret.op.i.i.4, %mulMod.exit.i.4 ]
+  %b.046.i.i.5 = phi i32 [ %divtmp44.i.i.5, %ifcont17.i.i.5 ], [ %common.ret.op.i.i.4, %mulMod.exit.i.4 ]
+  %result.045.i.i.5 = phi i32 [ %result.1.i.i.5, %ifcont17.i.i.5 ], [ 0, %mulMod.exit.i.4 ]
+  %a.147.i.i.5 = urem i32 %a.147.i.i.in.5, 1000003
+  %modtmp13.i.i.5 = and i32 %b.046.i.i.5, 1
+  %eqtmp14.not.i.i.5 = icmp eq i32 %modtmp13.i.i.5, 0
+  br i1 %eqtmp14.not.i.i.5, label %ifcont17.i.i.5, label %then15.i.i.5
+
+then15.i.i.5:                                     ; preds = %loopbody.i.i.5
+  %addtmp20.i.i.5 = add nuw nsw i32 %result.045.i.i.5, %a.147.i.i.5
+  %modtmp22.i.i.5 = urem i32 %addtmp20.i.i.5, 1000003
+  br label %ifcont17.i.i.5
+
+ifcont17.i.i.5:                                   ; preds = %then15.i.i.5, %loopbody.i.i.5
+  %result.1.i.i.5 = phi i32 [ %modtmp22.i.i.5, %then15.i.i.5 ], [ %result.045.i.i.5, %loopbody.i.i.5 ]
+  %addtmp25.i.i.5 = shl nuw nsw i32 %a.147.i.i.5, 1
+  %divtmp44.i.i.5 = lshr i32 %b.046.i.i.5, 1
+  %gttmp.not.i.i.5 = icmp eq i32 %divtmp44.i.i.5, 0
+  br i1 %gttmp.not.i.i.5, label %mulMod.exit.i.5, label %loopbody.i.i.5
+
+mulMod.exit.i.5:                                  ; preds = %ifcont17.i.i.5, %mulMod.exit.i.4
+  %common.ret.op.i.i.5 = phi i32 [ 0, %mulMod.exit.i.4 ], [ %result.1.i.i.5, %ifcont17.i.i.5 ]
+  %eqtmp3.i.i.6 = icmp eq i32 %common.ret.op.i.i.5, 0
+  br i1 %eqtmp3.i.i.6, label %mulMod.exit.i.6, label %loopbody.i.i.6
+
+loopbody.i.i.6:                                   ; preds = %mulMod.exit.i.5, %ifcont17.i.i.6
+  %a.147.i.i.in.6 = phi i32 [ %addtmp25.i.i.6, %ifcont17.i.i.6 ], [ %common.ret.op.i.i.5, %mulMod.exit.i.5 ]
+  %b.046.i.i.6 = phi i32 [ %divtmp44.i.i.6, %ifcont17.i.i.6 ], [ %common.ret.op.i.i.5, %mulMod.exit.i.5 ]
+  %result.045.i.i.6 = phi i32 [ %result.1.i.i.6, %ifcont17.i.i.6 ], [ 0, %mulMod.exit.i.5 ]
+  %a.147.i.i.6 = urem i32 %a.147.i.i.in.6, 1000003
+  %modtmp13.i.i.6 = and i32 %b.046.i.i.6, 1
+  %eqtmp14.not.i.i.6 = icmp eq i32 %modtmp13.i.i.6, 0
+  br i1 %eqtmp14.not.i.i.6, label %ifcont17.i.i.6, label %then15.i.i.6
+
+then15.i.i.6:                                     ; preds = %loopbody.i.i.6
+  %addtmp20.i.i.6 = add nuw nsw i32 %result.045.i.i.6, %a.147.i.i.6
+  %modtmp22.i.i.6 = urem i32 %addtmp20.i.i.6, 1000003
+  br label %ifcont17.i.i.6
+
+ifcont17.i.i.6:                                   ; preds = %then15.i.i.6, %loopbody.i.i.6
+  %result.1.i.i.6 = phi i32 [ %modtmp22.i.i.6, %then15.i.i.6 ], [ %result.045.i.i.6, %loopbody.i.i.6 ]
+  %addtmp25.i.i.6 = shl nuw nsw i32 %a.147.i.i.6, 1
+  %divtmp44.i.i.6 = lshr i32 %b.046.i.i.6, 1
+  %gttmp.not.i.i.6 = icmp eq i32 %divtmp44.i.i.6, 0
+  br i1 %gttmp.not.i.i.6, label %mulMod.exit.i.6, label %loopbody.i.i.6
+
+mulMod.exit.i.6:                                  ; preds = %ifcont17.i.i.6, %mulMod.exit.i.5
+  %common.ret.op.i.i.6 = phi i32 [ 0, %mulMod.exit.i.5 ], [ %result.1.i.i.6, %ifcont17.i.i.6 ]
+  %eqtmp3.i.i.7 = icmp eq i32 %common.ret.op.i.i.6, 0
+  br i1 %eqtmp3.i.i.7, label %mulMod.exit.i.7, label %loopbody.i.i.7
+
+loopbody.i.i.7:                                   ; preds = %mulMod.exit.i.6, %ifcont17.i.i.7
+  %a.147.i.i.in.7 = phi i32 [ %addtmp25.i.i.7, %ifcont17.i.i.7 ], [ %common.ret.op.i.i.6, %mulMod.exit.i.6 ]
+  %b.046.i.i.7 = phi i32 [ %divtmp44.i.i.7, %ifcont17.i.i.7 ], [ %common.ret.op.i.i.6, %mulMod.exit.i.6 ]
+  %result.045.i.i.7 = phi i32 [ %result.1.i.i.7, %ifcont17.i.i.7 ], [ 0, %mulMod.exit.i.6 ]
+  %a.147.i.i.7 = urem i32 %a.147.i.i.in.7, 1000003
+  %modtmp13.i.i.7 = and i32 %b.046.i.i.7, 1
+  %eqtmp14.not.i.i.7 = icmp eq i32 %modtmp13.i.i.7, 0
+  br i1 %eqtmp14.not.i.i.7, label %ifcont17.i.i.7, label %then15.i.i.7
+
+then15.i.i.7:                                     ; preds = %loopbody.i.i.7
+  %addtmp20.i.i.7 = add nuw nsw i32 %result.045.i.i.7, %a.147.i.i.7
+  %modtmp22.i.i.7 = urem i32 %addtmp20.i.i.7, 1000003
+  br label %ifcont17.i.i.7
+
+ifcont17.i.i.7:                                   ; preds = %then15.i.i.7, %loopbody.i.i.7
+  %result.1.i.i.7 = phi i32 [ %modtmp22.i.i.7, %then15.i.i.7 ], [ %result.045.i.i.7, %loopbody.i.i.7 ]
+  %addtmp25.i.i.7 = shl nuw nsw i32 %a.147.i.i.7, 1
+  %divtmp44.i.i.7 = lshr i32 %b.046.i.i.7, 1
+  %gttmp.not.i.i.7 = icmp eq i32 %divtmp44.i.i.7, 0
+  br i1 %gttmp.not.i.i.7, label %mulMod.exit.i.7, label %loopbody.i.i.7
+
+mulMod.exit.i.7:                                  ; preds = %ifcont17.i.i.7, %mulMod.exit.i.6
+  %common.ret.op.i.i.7 = phi i32 [ 0, %mulMod.exit.i.6 ], [ %result.1.i.i.7, %ifcont17.i.i.7 ]
+  %eqtmp3.i.i.8 = icmp eq i32 %common.ret.op.i.i.7, 0
+  br i1 %eqtmp3.i.i.8, label %mulMod.exit.i.8, label %loopbody.i.i.8
+
+loopbody.i.i.8:                                   ; preds = %mulMod.exit.i.7, %ifcont17.i.i.8
+  %a.147.i.i.in.8 = phi i32 [ %addtmp25.i.i.8, %ifcont17.i.i.8 ], [ %common.ret.op.i.i.7, %mulMod.exit.i.7 ]
+  %b.046.i.i.8 = phi i32 [ %divtmp44.i.i.8, %ifcont17.i.i.8 ], [ %common.ret.op.i.i.7, %mulMod.exit.i.7 ]
+  %result.045.i.i.8 = phi i32 [ %result.1.i.i.8, %ifcont17.i.i.8 ], [ 0, %mulMod.exit.i.7 ]
+  %a.147.i.i.8 = urem i32 %a.147.i.i.in.8, 1000003
+  %modtmp13.i.i.8 = and i32 %b.046.i.i.8, 1
+  %eqtmp14.not.i.i.8 = icmp eq i32 %modtmp13.i.i.8, 0
+  br i1 %eqtmp14.not.i.i.8, label %ifcont17.i.i.8, label %then15.i.i.8
+
+then15.i.i.8:                                     ; preds = %loopbody.i.i.8
+  %addtmp20.i.i.8 = add nuw nsw i32 %result.045.i.i.8, %a.147.i.i.8
+  %modtmp22.i.i.8 = urem i32 %addtmp20.i.i.8, 1000003
+  br label %ifcont17.i.i.8
+
+ifcont17.i.i.8:                                   ; preds = %then15.i.i.8, %loopbody.i.i.8
+  %result.1.i.i.8 = phi i32 [ %modtmp22.i.i.8, %then15.i.i.8 ], [ %result.045.i.i.8, %loopbody.i.i.8 ]
+  %addtmp25.i.i.8 = shl nuw nsw i32 %a.147.i.i.8, 1
+  %divtmp44.i.i.8 = lshr i32 %b.046.i.i.8, 1
+  %gttmp.not.i.i.8 = icmp eq i32 %divtmp44.i.i.8, 0
+  br i1 %gttmp.not.i.i.8, label %mulMod.exit.i.8, label %loopbody.i.i.8
+
+mulMod.exit.i.8:                                  ; preds = %ifcont17.i.i.8, %mulMod.exit.i.7
+  %common.ret.op.i.i.8 = phi i32 [ 0, %mulMod.exit.i.7 ], [ %result.1.i.i.8, %ifcont17.i.i.8 ]
+  %eqtmp3.i.i.9 = icmp eq i32 %common.ret.op.i.i.8, 0
+  br i1 %eqtmp3.i.i.9, label %mulMod.exit.i.9, label %loopbody.i.i.9
+
+loopbody.i.i.9:                                   ; preds = %mulMod.exit.i.8, %ifcont17.i.i.9
+  %a.147.i.i.in.9 = phi i32 [ %addtmp25.i.i.9, %ifcont17.i.i.9 ], [ %common.ret.op.i.i.8, %mulMod.exit.i.8 ]
+  %b.046.i.i.9 = phi i32 [ %divtmp44.i.i.9, %ifcont17.i.i.9 ], [ %common.ret.op.i.i.8, %mulMod.exit.i.8 ]
+  %result.045.i.i.9 = phi i32 [ %result.1.i.i.9, %ifcont17.i.i.9 ], [ 0, %mulMod.exit.i.8 ]
+  %a.147.i.i.9 = urem i32 %a.147.i.i.in.9, 1000003
+  %modtmp13.i.i.9 = and i32 %b.046.i.i.9, 1
+  %eqtmp14.not.i.i.9 = icmp eq i32 %modtmp13.i.i.9, 0
+  br i1 %eqtmp14.not.i.i.9, label %ifcont17.i.i.9, label %then15.i.i.9
+
+then15.i.i.9:                                     ; preds = %loopbody.i.i.9
+  %addtmp20.i.i.9 = add nuw nsw i32 %result.045.i.i.9, %a.147.i.i.9
+  %modtmp22.i.i.9 = urem i32 %addtmp20.i.i.9, 1000003
+  br label %ifcont17.i.i.9
+
+ifcont17.i.i.9:                                   ; preds = %then15.i.i.9, %loopbody.i.i.9
+  %result.1.i.i.9 = phi i32 [ %modtmp22.i.i.9, %then15.i.i.9 ], [ %result.045.i.i.9, %loopbody.i.i.9 ]
+  %addtmp25.i.i.9 = shl nuw nsw i32 %a.147.i.i.9, 1
+  %divtmp44.i.i.9 = lshr i32 %b.046.i.i.9, 1
+  %gttmp.not.i.i.9 = icmp eq i32 %divtmp44.i.i.9, 0
+  br i1 %gttmp.not.i.i.9, label %mulMod.exit.i.loopexit.9, label %loopbody.i.i.9
+
+mulMod.exit.i.loopexit.9:                         ; preds = %ifcont17.i.i.9
+  %0 = and i32 %result.1.i.i.9, 1
+  br label %mulMod.exit.i.9
+
+mulMod.exit.i.9:                                  ; preds = %mulMod.exit.i.loopexit.9, %mulMod.exit.i.8
+  %common.ret.op.i.i.9 = phi i32 [ 0, %mulMod.exit.i.8 ], [ %0, %mulMod.exit.i.loopexit.9 ]
+  %modtmp15.i.8 = and i32 %common.ret.op.i.i.8, 1
+  %modtmp15.i.7 = and i32 %common.ret.op.i.i.7, 1
+  %modtmp15.i.6 = and i32 %common.ret.op.i.i.6, 1
+  %modtmp15.i.5 = and i32 %common.ret.op.i.i.5, 1
+  %modtmp15.i.4 = and i32 %common.ret.op.i.i.4, 1
+  %modtmp15.i.3 = and i32 %common.ret.op.i.i.3, 1
+  %modtmp15.i.2 = and i32 %common.ret.op.i.i.2, 1
+  %modtmp15.i.1 = and i32 %common.ret.op.i.i.1, 1
+  %modtmp15.i = and i32 %result.1.i.i, 1
+  %addtmp16.i.1 = add nuw nsw i32 %modtmp15.i.1, %modtmp15.i
+  %addtmp16.i.2 = add nuw nsw i32 %modtmp15.i.2, %addtmp16.i.1
+  %addtmp16.i.3 = add nuw nsw i32 %modtmp15.i.3, %addtmp16.i.2
+  %addtmp16.i.4 = add nuw nsw i32 %modtmp15.i.4, %addtmp16.i.3
+  %addtmp16.i.5 = add nuw nsw i32 %modtmp15.i.5, %addtmp16.i.4
+  %addtmp16.i.6 = add nuw nsw i32 %modtmp15.i.6, %addtmp16.i.5
+  %modtmp18.i.6 = srem i32 %addtmp16.i.6, 1000000007
+  %addtmp16.i.7 = add nsw i32 %modtmp15.i.7, %modtmp18.i.6
+  %modtmp18.i.7 = srem i32 %addtmp16.i.7, 1000000007
+  %addtmp16.i.8 = add nsw i32 %modtmp15.i.8, %modtmp18.i.7
+  %modtmp18.i.8 = srem i32 %addtmp16.i.8, 1000000007
+  %addtmp16.i.9 = add nsw i32 %common.ret.op.i.i.9, %modtmp18.i.8
+  %modtmp18.i.9 = srem i32 %addtmp16.i.9, 1000000007
+  %1 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %modtmp18.i.9)
   ret i32 0
 }
 

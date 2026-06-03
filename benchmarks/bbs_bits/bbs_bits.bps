@@ -1,0 +1,63 @@
+blueprint mulMod {
+    input: a: i32, b: i32, mod: i32;
+    output: i32;
+    default: a == 0 ==> 0;
+    default: b == 0 ==> 0;
+    requires: b >= 0 && mod > 1;
+    ensures: mulMod >= 0 && mulMod < mod;
+}
+
+blueprint bbsBits {
+    input: seed: i32, modulus: i32, count: i32;
+    output: i32;
+    default: count == 0 ==> 0;
+    requires: count >= 0 && modulus > 1;
+    ensures: bbsBits >= 0;
+}
+
+function i32 mulMod(i32 a, i32 b, i32 mod) {
+    i32 result = 0;
+    a = a % mod;
+    if (a < 0) {
+        a = a + mod;
+    }
+
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result + a) % mod;
+        }
+        a = (a + a) % mod;
+        b = b / 2;
+    }
+
+    return result;
+}
+
+function i32 bbsBits(i32 seed, i32 modulus, i32 count) {
+    i32 result = 0;
+    i32 sumMod = 1000000007;
+    i32 i = 0;
+
+    seed = seed % modulus;
+    if (seed < 0) {
+        seed = seed + modulus;
+    }
+
+    while (i < count) {
+        seed = mulMod(seed, seed, modulus);
+        result = (result + (seed % 2)) % sumMod;
+        i = i + 1;
+    }
+
+    return result;
+}
+
+function i32 bbsStress() {
+    i32 seed = 123456789;
+    i32 modulus = 1000003;
+    i32 count = 200000000;
+
+    return bbsBits(seed, modulus, count);
+}
+
+print(bbsStress());

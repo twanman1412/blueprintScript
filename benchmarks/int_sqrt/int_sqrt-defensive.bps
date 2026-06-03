@@ -1,0 +1,38 @@
+function i32 intSqrt(i32 n) {
+	assert(n >= 0);
+
+    i32 low = 0;
+    i32 high = n;
+    i32 result = 0;
+
+    while (low <= high) {
+        i32 mid = low + (high - low) / 2;
+        if (mid == 0) {
+            result = 0;
+            low = 1;
+        } else if (mid <= n / mid) {
+            result = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    return result;
+}
+
+function i32 intSqrtStress() {
+    i32 sum = 0;
+    i32 modulus = 1000000007;
+    i32 i = 0;
+    i32 limit = 100000000;
+
+    while (i <= limit) {
+        sum = (sum + intSqrt(i)) % modulus;
+        i = i + 1;
+    }
+
+    return sum;
+}
+
+print(intSqrtStress());

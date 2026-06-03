@@ -125,26 +125,10 @@ loopexit:                                         ; preds = %loopcond
   ret i32 %result20
 }
 
-; Function Attrs: nounwind willreturn
-define noundef i32 @bbsStress() #0 {
-entry:
-  %count = alloca i32, align 4
-  %modulus = alloca i32, align 4
-  %seed = alloca i32, align 4
-  store i32 123456789, ptr %seed, align 4
-  store i32 1000003, ptr %modulus, align 4
-  store i32 200000000, ptr %count, align 4
-  %seed1 = load i32, ptr %seed, align 4
-  %modulus2 = load i32, ptr %modulus, align 4
-  %count3 = load i32, ptr %count, align 4
-  %calltmp = call i32 @bbsBits(i32 %seed1, i32 %modulus2, i32 %count3)
-  ret i32 %calltmp
-}
-
 ; Function Attrs: nounwind
 define noundef i32 @main() #1 {
 entry:
-  %calltmp = call i32 @bbsStress()
+  %calltmp = call i32 @bbsBits(i32 123456789, i32 1000003, i32 10)
   %0 = call i32 (ptr, ...) @printf(ptr @fmt, i32 %calltmp)
   ret i32 0
 }

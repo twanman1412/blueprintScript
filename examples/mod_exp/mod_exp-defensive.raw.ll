@@ -145,54 +145,10 @@ ifcont11:                                         ; preds = %else10, %then9
   br label %loopcond
 }
 
-; Function Attrs: nounwind willreturn
-define noundef i32 @modExpStress() #0 {
-entry:
-  %currentMod = alloca i32, align 4
-  %i = alloca i32, align 4
-  %iterations = alloca i32, align 4
-  %modulus = alloca i32, align 4
-  %maxExponent = alloca i32, align 4
-  %result = alloca i32, align 4
-  store i32 0, ptr %result, align 4
-  store i32 2147483647, ptr %maxExponent, align 4
-  store i32 1000000007, ptr %modulus, align 4
-  store i32 1000000, ptr %iterations, align 4
-  store i32 1, ptr %i, align 4
-  br label %loopcond
-
-loopcond:                                         ; preds = %loopbody, %entry
-  %i1 = load i32, ptr %i, align 4
-  %iterations2 = load i32, ptr %iterations, align 4
-  %letmp = icmp sle i32 %i1, %iterations2
-  br i1 %letmp, label %loopbody, label %loopexit
-
-loopbody:                                         ; preds = %loopcond
-  %i3 = load i32, ptr %i, align 4
-  %maxExponent4 = load i32, ptr %maxExponent, align 4
-  %modulus5 = load i32, ptr %modulus, align 4
-  %calltmp = call i32 @modExp(i32 %i3, i32 %maxExponent4, i32 %modulus5)
-  store i32 %calltmp, ptr %currentMod, align 4
-  %result6 = load i32, ptr %result, align 4
-  %currentMod7 = load i32, ptr %currentMod, align 4
-  %addtmp = add i32 %result6, %currentMod7
-  %modulus8 = load i32, ptr %modulus, align 4
-  %modtmp = srem i32 %addtmp, %modulus8
-  store i32 %modtmp, ptr %result, align 4
-  %i9 = load i32, ptr %i, align 4
-  %addtmp10 = add i32 %i9, 1
-  store i32 %addtmp10, ptr %i, align 4
-  br label %loopcond
-
-loopexit:                                         ; preds = %loopcond
-  %result11 = load i32, ptr %result, align 4
-  ret i32 %result11
-}
-
 ; Function Attrs: nounwind
 define noundef i32 @main() #1 {
 entry:
-  %calltmp = call i32 @modExpStress()
+  %calltmp = call i32 @modExp(i32 2, i32 10, i32 1000)
   %0 = call i32 (ptr, ...) @printf(ptr @fmt, i32 %calltmp)
   ret i32 0
 }

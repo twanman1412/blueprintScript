@@ -90,8 +90,8 @@ loopexit:                                         ; preds = %mulMod.exit, %entry
   ret i32 %result.0.lcssa
 }
 
-; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(none)
-define noundef range(i32 -1000000006, 1000000007) i32 @bbsStress() local_unnamed_addr #0 {
+; Function Attrs: nofree nounwind
+define noundef i32 @main() local_unnamed_addr #1 {
 entry:
   br label %loopbody.i
 
@@ -129,57 +129,11 @@ mulMod.exit.i:                                    ; preds = %ifcont.i.i, %loopbo
   %addtmp15.i = add nsw i32 %modtmp14.i, %result.031.i
   %modtmp17.i = srem i32 %addtmp15.i, 1000000007
   %addtmp19.i = add nuw nsw i32 %i.032.i, 1
-  %lttmp8.i = icmp samesign ult i32 %i.032.i, 199999999
+  %lttmp8.i = icmp samesign ult i32 %i.032.i, 9
   br i1 %lttmp8.i, label %loopbody.i, label %bbsBits.exit
 
 bbsBits.exit:                                     ; preds = %mulMod.exit.i
-  ret i32 %modtmp17.i
-}
-
-; Function Attrs: nofree nounwind
-define noundef i32 @main() local_unnamed_addr #1 {
-entry:
-  br label %loopbody.i.i
-
-loopbody.i.i:                                     ; preds = %mulMod.exit.i.i, %entry
-  %seed.133.i.i = phi i32 [ %result.0.lcssa.i.i.i, %mulMod.exit.i.i ], [ 456420, %entry ]
-  %i.032.i.i = phi i32 [ %addtmp19.i.i, %mulMod.exit.i.i ], [ 0, %entry ]
-  %result.031.i.i = phi i32 [ %modtmp17.i.i, %mulMod.exit.i.i ], [ 0, %entry ]
-  %gttmp27.i.i.i = icmp sgt i32 %seed.133.i.i, 0
-  br i1 %gttmp27.i.i.i, label %loopbody.i.i.i, label %mulMod.exit.i.i
-
-loopbody.i.i.i:                                   ; preds = %loopbody.i.i, %ifcont.i.i.i
-  %addtmp12.pn.i.i.i = phi i32 [ %addtmp12.i.i.i, %ifcont.i.i.i ], [ %seed.133.i.i, %loopbody.i.i ]
-  %b.029.i.i.i = phi i32 [ %divtmp25.i.i.i, %ifcont.i.i.i ], [ %seed.133.i.i, %loopbody.i.i ]
-  %result.028.i.i.i = phi i32 [ %result.1.i.i.i, %ifcont.i.i.i ], [ 0, %loopbody.i.i ]
-  %a.030.i.i.i = srem i32 %addtmp12.pn.i.i.i, 1000003
-  %modtmp5.i.i.i = and i32 %b.029.i.i.i, 1
-  %eqtmp.not.i.i.i = icmp eq i32 %modtmp5.i.i.i, 0
-  br i1 %eqtmp.not.i.i.i, label %ifcont.i.i.i, label %then.i.i.i
-
-then.i.i.i:                                       ; preds = %loopbody.i.i.i
-  %addtmp.i.i.i = add nsw i32 %result.028.i.i.i, %a.030.i.i.i
-  %modtmp9.i.i.i = srem i32 %addtmp.i.i.i, 1000003
-  br label %ifcont.i.i.i
-
-ifcont.i.i.i:                                     ; preds = %then.i.i.i, %loopbody.i.i.i
-  %result.1.i.i.i = phi i32 [ %modtmp9.i.i.i, %then.i.i.i ], [ %result.028.i.i.i, %loopbody.i.i.i ]
-  %addtmp12.i.i.i = shl nsw i32 %a.030.i.i.i, 1
-  %divtmp25.i.i.i = lshr i32 %b.029.i.i.i, 1
-  %gttmp.not.i.i.i = icmp eq i32 %divtmp25.i.i.i, 0
-  br i1 %gttmp.not.i.i.i, label %mulMod.exit.i.i, label %loopbody.i.i.i
-
-mulMod.exit.i.i:                                  ; preds = %ifcont.i.i.i, %loopbody.i.i
-  %result.0.lcssa.i.i.i = phi i32 [ 0, %loopbody.i.i ], [ %result.1.i.i.i, %ifcont.i.i.i ]
-  %modtmp14.i.i = srem i32 %result.0.lcssa.i.i.i, 2
-  %addtmp15.i.i = add nsw i32 %modtmp14.i.i, %result.031.i.i
-  %modtmp17.i.i = srem i32 %addtmp15.i.i, 1000000007
-  %addtmp19.i.i = add nuw nsw i32 %i.032.i.i, 1
-  %lttmp8.i.i = icmp samesign ult i32 %i.032.i.i, 199999999
-  br i1 %lttmp8.i.i, label %loopbody.i.i, label %bbsStress.exit
-
-bbsStress.exit:                                   ; preds = %mulMod.exit.i.i
-  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %modtmp17.i.i)
+  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt, i32 %modtmp17.i)
   ret i32 0
 }
 

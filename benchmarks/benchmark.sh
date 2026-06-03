@@ -12,7 +12,7 @@ if [ $# -ne 1 ]; then
 fi
 
 BENCHMARK=$1
-TARGET_DIR="examples/$BENCHMARK"
+TARGET_DIR="$BENCHMARK"
 
 if [ ! -d "$TARGET_DIR" ]; then
     echo "Error: Directory $TARGET_DIR does not exist."
