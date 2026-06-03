@@ -27,4 +27,5 @@ build/
 examples/**/*
 !examples/**/
 !examples/**/*.bps
+!examples/**/*.ll
 !examples/**/*.md
