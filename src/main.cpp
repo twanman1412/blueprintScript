@@ -39,6 +39,7 @@ int main (int argc, char *argv[]) {
 	bool verbose = false;
 	bool showHelp = false;
 	bool emitLLVM = false;
+	bool emitRaw = false;
 	char sourceFile[256] = {0};
 	bool enforceMode = false;
 	bool optimiseMode = false;
@@ -51,6 +52,8 @@ int main (int argc, char *argv[]) {
 			verbose = true;
 		} else if (arg == "--emit-llvm") {
 			emitLLVM = true;
+		} else if (arg == "--emit-raw") {
+			emitRaw = true;
 		} else if (arg == "--mode=enforce") {
 			if (optimiseMode) {
 				printf("Error: Cannot specify both enforce and optimise modes.\n");
@@ -141,6 +144,18 @@ int main (int argc, char *argv[]) {
 
 	auto *module = codegen.getModule();
 	std::string outputBase = getOutputBase(sourceFile);
+
+	// Emit un-optimised LLVM IR
+	if (emitRaw) {
+		std::string llvmPath = outputBase + ".raw.ll";
+		std::error_code ec;
+		llvm::raw_fd_ostream out(llvmPath, ec, llvm::sys::fs::OF_Text);
+		if (ec) {
+			logger.errorf("Error: Could not open output file %s: %s\n", llvmPath.c_str(), ec.message().c_str());
+			return 1;
+		}
+		module->print(out, nullptr);
+	}
 
 	// Run the O3 optimization pipeline on the module.
 	llvm::LoopAnalysisManager lam;
