@@ -5,12 +5,10 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for isSquare" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     while_loop [label="while (n > 0)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> while_loop [label="otherwise"];
     blueprint -> exit [label="base case"];
     while_loop -> while_loop [label="true"];
@@ -19,7 +17,9 @@ digraph "CFG for isSquare" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 3
+Number of Nodes = 3
+Number of Edges = 4
+Cyclomatic Complexity = E - N + 2 = 4 - 3 + 2 = 3
 
 ## `square_test-defensive.bps`
 
@@ -37,7 +37,9 @@ digraph "CFG for isSquare" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 2
+Number of Nodes = 3
+Number of Edges = 3
+Cyclomatic Complexity = E - N + 2 = 3 - 3 + 2 = 2
 
 ## `square_test.ll`
 

@@ -5,14 +5,12 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for intSqrt" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     while_loop [label="while (low <= high)"];
     if_mid [label="if (mid == 0)"];
     else_if_mid [label="else if (mid <= n / mid)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> while_loop [label="otherwise"];
     blueprint -> exit [label="base case"];
     while_loop -> if_mid [label="true"];
@@ -24,7 +22,9 @@ digraph "CFG for intSqrt" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 5
+Number of Nodes = 5
+Number of Edges = 7
+Cyclomatic Complexity = E - N + 2 = 7 - 5 + 2 = 4
 
 ## `int_sqrt-defensive.bps`
 
@@ -47,7 +47,9 @@ digraph "CFG for intSqrt" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 4
+Number of Nodes = 5
+Number of Edges = 6
+Cyclomatic Complexity = E - N + 2 = 6 - 5 + 2 = 3
 
 ## `int_sqrt.ll`
 

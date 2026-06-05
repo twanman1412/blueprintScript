@@ -5,13 +5,11 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for modExp" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     while_loop [label="while (exp > 0)"];
     if_exp [label="if (exp % 2 == 1)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> while_loop [label="otherwise"];
     blueprint -> exit [label="base case"];
     while_loop -> if_exp [label="true"];
@@ -21,7 +19,9 @@ digraph "CFG for modExp" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 5
+Number of Nodes = 4
+Number of Edges = 5
+Cyclomatic Complexity = E - N + 2 = 5 - 4 + 2 = 3
 
 ## `mod_exp-defensive.bps`
 
@@ -43,7 +43,9 @@ digraph "CFG for modExp" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 4
+Number of Nodes = 5
+Number of Edges = 5
+Cyclomatic Complexity = E - N + 2 = 5 - 5 + 2 = 2
 
 ## `mod_exp.ll`
 

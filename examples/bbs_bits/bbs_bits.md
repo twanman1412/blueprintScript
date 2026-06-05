@@ -5,13 +5,11 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for bbsBits" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     body_if [label="if (seed < 0)"];
     body_while [label="while (i < count)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> body_if [label="otherwise"];
     blueprint -> exit [label="base case"];
     body_if -> body_while;
@@ -21,7 +19,9 @@ digraph "CFG for bbsBits" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 4
+Number of Nodes = 4
+Number of Edges = 5
+Cyclomatic Complexity = E - N + 2 = 5 - 4 + 2 = 3
 
 ## `bbs_bits-defensive.bps`
 
@@ -41,7 +41,9 @@ digraph "CFG for bbsBits" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 3
+Number of Nodes = 4
+Number of Edges = 4
+Cyclomatic Complexity = E - N + 2 = 4 - 4 + 2 = 2
 
 ## `bbs_bits.ll`
 

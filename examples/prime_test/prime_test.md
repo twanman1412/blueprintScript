@@ -5,7 +5,6 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for isPrime" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     if_n_le_1 [label="if (n <= 1)"];
     if_n_le_3 [label="if (n <= 3)"];
@@ -14,7 +13,6 @@ digraph "CFG for isPrime" {
     if_n_mod_i [label="if (n % i == 0)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> if_n_le_1 [label="otherwise"];
     blueprint -> exit [label="base case"];
     if_n_le_1 -> exit [label="true"];
@@ -31,7 +29,9 @@ digraph "CFG for isPrime" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 8
+Number of Nodes = 7
+Number of Edges = 12
+Cyclomatic Complexity = E - N + 2 = 12 - 7 + 2 = 7
 
 ## `prime_test-defensive.bps`
 
@@ -61,7 +61,9 @@ digraph "CFG for isPrime" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 6
+Number of Nodes = 7
+Number of Edges = 11
+Cyclomatic Complexity = E - N + 2 = 11 - 7 + 2 = 6
 
 ## `prime_test.ll`
 

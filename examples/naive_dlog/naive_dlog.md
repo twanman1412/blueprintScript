@@ -5,13 +5,11 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for discreteLog" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     while_loop [label="while (x < mod)"];
     if_value [label="if (value == target)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> while_loop [label="otherwise"];
     blueprint -> exit [label="base case"];
     while_loop -> if_value [label="true"];
@@ -22,7 +20,9 @@ digraph "CFG for discreteLog" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 4
+Number of Nodes = 4
+Number of Edges = 6
+Cyclomatic Complexity = E - N + 2 = 6 - 4 + 2 = 4
 
 ## `naive_dlog-defensive.bps`
 
@@ -43,7 +43,9 @@ digraph "CFG for discreteLog" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 3
+Number of Nodes = 4
+Number of Edges = 5
+Cyclomatic Complexity = E - N + 2 = 5 - 4 + 2 = 3
 
 ## `naive_dlog.ll`
 

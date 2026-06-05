@@ -5,12 +5,10 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for modInverse" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     body [label="modExp(a, mod - 2, mod)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> body [label="otherwise"];
     blueprint -> exit [label="base case"];
     body -> exit;
@@ -18,7 +16,9 @@ digraph "CFG for modInverse" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 2
+Number of Nodes = 3
+Number of Edges = 3
+Cyclomatic Complexity = E - N + 2 = 3 - 3 + 2 = 2
 
 ## `mod_inverse-defensive.bps`
 
@@ -35,7 +35,9 @@ digraph "CFG for modInverse" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 1
+Number of Nodes = 3
+Number of Edges = 2
+Cyclomatic Complexity = E - N + 2 = 2 - 3 + 2 = 1
 
 ## `mod_inverse.ll`
 

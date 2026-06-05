@@ -5,20 +5,20 @@
 ### CFG (.dot)
 ```dot
 digraph "CFG for fibonacci.bps" {
-    entry [label="entry"];
     blueprint [label="blueprint"];
     body [label="fibonacci(n - 1) + fibonacci(n - 2)"];
     exit [label="exit"];
 
-    entry -> blueprint;
     blueprint -> exit [label="base case"];
     blueprint -> body [label="otherwise"];
-    body -> entry;
+    body -> blueprint;
 }
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 2
+Number of Nodes = 3
+Number of Edges = 3
+Cyclomatic Complexity = E - N + 2 = 3 - 3 + 2 = 2
 
 ## `fibonacci-defensive.bps`
 
@@ -45,7 +45,9 @@ digraph "CFG for fibonacci-defensive.bps" {
 ```
 
 ### Cyclomatic Complexity
-Cyclomatic Complexity = 3
+Number of Nodes = 7
+Number of Edges = 8
+Cyclomatic Complexity = E - N + 2 = 8 - 7 + 2 = 3
 
 ## `fibonacci.ll`
 
