@@ -29,3 +29,11 @@ examples/**/*
 !examples/**/*.bps
 !examples/**/*.ll
 !examples/**/*.md
+!examples/**/*.svg
+
+# Include benchmark bpf files
+benchmarks/**/*
+!benchmarks/**/
+!benchmarks/**/*.bps
+!benchmarks/**/*.ll
+!benchmarks/**/*.md
