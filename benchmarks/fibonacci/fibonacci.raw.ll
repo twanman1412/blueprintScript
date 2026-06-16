@@ -3,8 +3,8 @@ source_filename = "blueprint_module"
 
 @fmt = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
-; Function Attrs: nounwind willreturn
-define noundef range(i32 0, -2147483648) i32 @fibonacci(i32 noundef range(i32 0, -2147483648) %0) #0 {
+; Function Attrs: nofree nosync nounwind willreturn memory(none)
+define internal fastcc noundef range(i32 0, -2147483648) i32 @fibonacci(i32 noundef range(i32 0, -2147483648) %0) #0 {
 entry:
   %fibonacci = alloca i32, align 4
   %n = alloca i32, align 4
@@ -29,17 +29,17 @@ default.return4:                                  ; preds = %default.next
 default.next5:                                    ; preds = %default.next
   %n6 = load i32, ptr %n, align 4
   %subtmp = sub i32 %n6, 1
-  %calltmp = call i32 @fibonacci(i32 %subtmp)
+  %calltmp = call fastcc i32 @fibonacci(i32 %subtmp)
   %n7 = load i32, ptr %n, align 4
   %subtmp8 = sub i32 %n7, 2
-  %calltmp9 = call i32 @fibonacci(i32 %subtmp8)
+  %calltmp9 = call fastcc i32 @fibonacci(i32 %subtmp8)
   %addtmp = add i32 %calltmp, %calltmp9
   store i32 %addtmp, ptr %fibonacci, align 4
   ret i32 %addtmp
 }
 
-; Function Attrs: nounwind willreturn
-define noundef i32 @fibonacciStress() #0 {
+; Function Attrs: nofree nosync nounwind willreturn memory(none)
+define internal fastcc noundef i32 @fibonacciStress() #0 {
 entry:
   %i = alloca i32, align 4
   %iterations = alloca i32, align 4
@@ -58,7 +58,7 @@ loopcond:                                         ; preds = %loopbody, %entry
 loopbody:                                         ; preds = %loopcond
   %result3 = load i32, ptr %result, align 4
   %i4 = load i32, ptr %i, align 4
-  %calltmp = call i32 @fibonacci(i32 %i4)
+  %calltmp = call fastcc i32 @fibonacci(i32 %i4)
   %addtmp = add i32 %result3, %calltmp
   store i32 %addtmp, ptr %result, align 4
   %i5 = load i32, ptr %i, align 4
@@ -71,15 +71,15 @@ loopexit:                                         ; preds = %loopcond
   ret i32 %result7
 }
 
-; Function Attrs: nounwind
-define noundef i32 @main() #1 {
+; Function Attrs: nofree nosync nounwind memory(none)
+define internal fastcc noundef i32 @main() #1 {
 entry:
-  %calltmp = call i32 @fibonacciStress()
+  %calltmp = call fastcc i32 @fibonacciStress()
   %0 = call i32 (ptr, ...) @printf(ptr @fmt, i32 %calltmp)
   ret i32 0
 }
 
 declare i32 @printf(ptr, ...)
 
-attributes #0 = { nounwind willreturn }
-attributes #1 = { nounwind }
+attributes #0 = { nofree nosync nounwind willreturn memory(none) }
+attributes #1 = { nofree nosync nounwind memory(none) }

@@ -2,89 +2,177 @@
 
 ## int_sqrt
 ```txt
-# started on Wed Jun  3 14:10:01 2026
+# started on Tue Jun 16 12:38:37 2026
 
 
  Performance counter stats for './int_sqrt' (20 runs):
 
                  0      context-switches:u               #      0.0 cs/sec  cs_per_second     
                  0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
-                60      page-faults:u                    #      7.8 faults/sec  page_faults_per_second  ( +-  0.35% )
-          7,712.24 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.04% )
-           177,945      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  1.74% )  (49.99%)
-    13,410,615,452      branches:u                       #   1738.9 M/sec  branch_frequency     ( +-  0.01% )  (49.99%)
-    41,951,897,474      cpu-cycles:u                     #      5.4 GHz  cycles_frequency       ( +-  0.01% )  (66.67%)
-   121,542,237,666      instructions:u                   #      2.9 instructions  insn_per_cycle  ( +-  0.01% )  (50.01%)
-        13,139,719      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  5.14% )  (50.01%)
+                60      page-faults:u                    #      7.9 faults/sec  page_faults_per_second  ( +-  0.19% )
+          7,627.47 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.01% )
+           149,868      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  0.56% )  (49.99%)
+    13,410,882,052      branches:u                       #   1758.2 M/sec  branch_frequency     ( +-  0.00% )  (49.99%)
+    41,929,426,303      cpu-cycles:u                     #      5.5 GHz  cycles_frequency       ( +-  0.00% )  (66.66%)
+   121,530,489,226      instructions:u                   #      2.9 instructions  insn_per_cycle  ( +-  0.00% )  (50.01%)
+         7,888,949      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  0.68% )  (50.01%)
 
        # Table of individual measurements:
-       7.721113337 (+0.007783133) #
-       7.719261328 (+0.005931123) #
-       7.690587480 (-0.022742725) #
-       7.722533303 (+0.009203098) #
-       7.719732965 (+0.006402761) #
-       7.724596860 (+0.011266656) #
-       7.702831844 (-0.010498360) #
-       7.730313045 (+0.016982840) #
-       7.691383276 (-0.021946929) #
-       7.690059500 (-0.023270704) #
-       7.694189356 (-0.019140849) #
-       7.715888749 (+0.002558545) #
-       7.735342326 (+0.022012121) #
-       7.738504635 (+0.025174430) #
-       7.703574943 (-0.009755262) #
-       7.710109456 (-0.003220749) #
-       7.692151693 (-0.021178512) #
-       7.711071601 (-0.002258603) #
-       7.729702503 (+0.016372299) #
-       7.723655890 (+0.010325685) #
+       7.628298875 (-0.000294314) #
+       7.630322723 (+0.001729534) #
+       7.627701346 (-0.000891843) #
+       7.634678836 (+0.006085647) #
+       7.630483333 (+0.001890144) #
+       7.627800422 (-0.000792767) #
+       7.628549654 (-0.000043535) #
+       7.632276480 (+0.003683291) #
+       7.631063289 (+0.002470100) #
+       7.628209508 (-0.000383681) #
+       7.625958114 (-0.002635075) #
+       7.628435140 (-0.000158049) #
+       7.627216699 (-0.001376490) #
+       7.627479551 (-0.001113638) #
+       7.626831008 (-0.001762181) #
+       7.626440657 (-0.002152532) #
+       7.627520358 (-0.001072831) #
+       7.628818708 (+0.000225519) #
+       7.626862737 (-0.001730452) #
+       7.626916338 (-0.001676851) #
 
        # Final result:
-       7.713330205 +- 0.003521545 seconds time elapsed  ( +-  0.05% )
+       7.628593189 +- 0.000486061 seconds time elapsed  ( +-  0.01% )
 
 ```
 
 ## int_sqrt-defensive
 ```txt
-# started on Wed Jun  3 14:12:35 2026
+# started on Tue Jun 16 12:41:09 2026
 
 
  Performance counter stats for './int_sqrt-defensive' (20 runs):
 
                  0      context-switches:u               #      0.0 cs/sec  cs_per_second     
                  0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
-                60      page-faults:u                    #      7.8 faults/sec  page_faults_per_second  ( +-  0.32% )
-          7,723.17 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.05% )
-           175,662      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  1.81% )  (49.98%)
-    13,310,728,437      branches:u                       #   1723.5 M/sec  branch_frequency     ( +-  0.00% )  (49.98%)
-    42,016,202,513      cpu-cycles:u                     #      5.4 GHz  cycles_frequency       ( +-  0.01% )  (66.69%)
-   123,854,908,321      instructions:u                   #      2.9 instructions  insn_per_cycle  ( +-  0.00% )  (50.02%)
-        10,061,663      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  4.02% )  (50.02%)
+                60      page-faults:u                    #      7.9 faults/sec  page_faults_per_second  ( +-  0.28% )
+          7,642.95 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.01% )
+           156,003      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  0.36% )  (49.99%)
+    13,310,618,621      branches:u                       #   1741.6 M/sec  branch_frequency     ( +-  0.00% )  (49.99%)
+    42,011,742,874      cpu-cycles:u                     #      5.5 GHz  cycles_frequency       ( +-  0.00% )  (66.66%)
+   123,854,467,197      instructions:u                   #      2.9 instructions  insn_per_cycle  ( +-  0.00% )  (50.01%)
+         7,839,300      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  0.26% )  (50.01%)
 
        # Table of individual measurements:
-       7.732043854 (+0.007802219) #
-       7.703636925 (-0.020604710) #
-       7.707422132 (-0.016819503) #
-       7.750122908 (+0.025881273) #
-       7.734081350 (+0.009839715) #
-       7.732255678 (+0.008014043) #
-       7.736623949 (+0.012382314) #
-       7.733993838 (+0.009752203) #
-       7.738683092 (+0.014441457) #
-       7.742895845 (+0.018654210) #
-       7.740697518 (+0.016455883) #
-       7.739083559 (+0.014841924) #
-       7.742357823 (+0.018116188) #
-       7.728464391 (+0.004222756) #
-       7.711690894 (-0.012550741) #
-       7.699005667 (-0.025235968) #
-       7.707432666 (-0.016808969) #
-       7.698192963 (-0.026048672) #
-       7.706390646 (-0.017850989) #
-       7.699757005 (-0.024484630) #
+       7.641277004 (-0.002950042) #
+       7.643775560 (-0.000451486) #
+       7.640331916 (-0.003895130) #
+       7.641288375 (-0.002938671) #
+       7.643421158 (-0.000805888) #
+       7.647175754 (+0.002948708) #
+       7.647205249 (+0.002978203) #
+       7.649515082 (+0.005288036) #
+       7.646892724 (+0.002665678) #
+       7.642127025 (-0.002100021) #
+       7.641105834 (-0.003121212) #
+       7.638946713 (-0.005280333) #
+       7.644464379 (+0.000237333) #
+       7.641554985 (-0.002672061) #
+       7.646879229 (+0.002652183) #
+       7.645210546 (+0.000983500) #
+       7.644645288 (+0.000418242) #
+       7.642649594 (-0.001577452) #
+       7.645128082 (+0.000901036) #
+       7.650946421 (+0.006719375) #
 
        # Final result:
-       7.724241635 +- 0.003945312 seconds time elapsed  ( +-  0.05% )
+       7.644227046 +- 0.000710549 seconds time elapsed  ( +-  0.01% )
+
+```
+
+## int_sqrt cpp
+```txt
+# started on Tue Jun 16 12:43:43 2026
+
+
+ Performance counter stats for './cpp-int_sqrt' (20 runs):
+
+                 0      context-switches:u               #      0.0 cs/sec  cs_per_second     
+                 0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
+               132      page-faults:u                    #     47.9 faults/sec  page_faults_per_second  ( +-  0.15% )
+          2,753.88 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.02% )
+           120,425      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  2.55% )  (49.95%)
+    11,981,082,739      branches:u                       #   4350.6 M/sec  branch_frequency     ( +-  0.01% )  (49.99%)
+    15,132,358,756      cpu-cycles:u                     #      5.5 GHz  cycles_frequency       ( +-  0.01% )  (66.67%)
+    50,759,070,341      instructions:u                   #      3.4 instructions  insn_per_cycle  ( +-  0.01% )  (50.05%)
+        60,637,468      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  1.79% )  (50.01%)
+
+       # Table of individual measurements:
+       2.757334456 (+0.002687163) #
+       2.755505253 (+0.000857960) #
+       2.754692211 (+0.000044918) #
+       2.759576703 (+0.004929410) #
+       2.755259533 (+0.000612240) #
+       2.752537900 (-0.002109393) #
+       2.753338157 (-0.001309136) #
+       2.752878737 (-0.001768556) #
+       2.755792912 (+0.001145619) #
+       2.752410781 (-0.002236512) #
+       2.761794043 (+0.007146750) #
+       2.752955331 (-0.001691962) #
+       2.752401063 (-0.002246230) #
+       2.755534688 (+0.000887395) #
+       2.756063818 (+0.001416525) #
+       2.752773049 (-0.001874244) #
+       2.752519615 (-0.002127678) #
+       2.755050833 (+0.000403540) #
+       2.753265702 (-0.001381591) #
+       2.751261070 (-0.003386223) #
+
+       # Final result:
+       2.754647293 +- 0.000588474 seconds time elapsed  ( +-  0.02% )
+
+```
+
+## int_sqrt-defensive cpp
+```txt
+# started on Tue Jun 16 12:44:38 2026
+
+
+ Performance counter stats for './cpp-int_sqrt-defensive' (20 runs):
+
+                 0      context-switches:u               #      0.0 cs/sec  cs_per_second     
+                 0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
+               132      page-faults:u                    #     47.9 faults/sec  page_faults_per_second  ( +-  0.18% )
+          2,754.86 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized         ( +-  0.02% )
+           122,644      branch-misses:u                  #      0.0 %  branch_miss_rate         ( +-  2.33% )  (50.00%)
+    11,981,526,978      branches:u                       #   4349.2 M/sec  branch_frequency     ( +-  0.01% )  (49.99%)
+    15,134,573,005      cpu-cycles:u                     #      5.5 GHz  cycles_frequency       ( +-  0.01% )  (66.66%)
+    50,771,268,452      instructions:u                   #      3.4 instructions  insn_per_cycle  ( +-  0.01% )  (50.00%)
+        62,514,406      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        ( +-  2.07% )  (50.01%)
+
+       # Table of individual measurements:
+       2.754267857 (-0.001432589) #
+       2.751878605 (-0.003821841) #
+       2.756141765 (+0.000441319) #
+       2.755899029 (+0.000198583) #
+       2.754917152 (-0.000783294) #
+       2.754432685 (-0.001267761) #
+       2.758783398 (+0.003082952) #
+       2.755027268 (-0.000673178) #
+       2.756609449 (+0.000909003) #
+       2.752295345 (-0.003405101) #
+       2.756436205 (+0.000735759) #
+       2.756460260 (+0.000759814) #
+       2.763187621 (+0.007487175) #
+       2.759068031 (+0.003367585) #
+       2.758717235 (+0.003016789) #
+       2.754559062 (-0.001141384) #
+       2.753057541 (-0.002642905) #
+       2.752391284 (-0.003309162) #
+       2.755607354 (-0.000093092) #
+       2.754271764 (-0.001428682) #
+
+       # Final result:
+       2.755700446 +- 0.000607841 seconds time elapsed  ( +-  0.02% )
 
 ```
 

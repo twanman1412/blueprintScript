@@ -88,7 +88,8 @@ private:
     llvm::Function* getOrCreateTopLevelFunction();
     llvm::Value* emitPrintValue(llvm::Value* value);
     void emitRuntimeError(const std::string& kind);
-    void applyGeneralFunctionAttributes(llvm::Function* function);
+	void applyTargetAttributes(llvm::Function* function);
+    void applyGeneralFunctionAttributes(llvm::Function* function, bool isMain = false);
     void applyWillReturnAttribute(llvm::Function* function);
     void applyRangeAttributes(llvm::Function* function, const FunctionDeclAST* node, const InferredMetadata& metadata);
     bool emitContractCheck(const ExprAST* condition, const std::string& kind);

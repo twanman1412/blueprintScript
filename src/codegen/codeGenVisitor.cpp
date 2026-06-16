@@ -22,12 +22,13 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <llvm/TargetParser/Host.h>
 #include <vector>
 
 namespace {
-	void logCodegen(const std::string& message) {
-		logger.debugln("[codegen] " + message);
-	}
+    void logCodegen(const std::string& message) {
+        logger.debugln("[codegen] " + message);
+    }
 
     void applyNoWrapFlags(llvm::Instruction* instruction, const std::optional<InferredRange>& range) {
         if (!instruction || !range || !range->hasLower || !range->hasUpper) {
@@ -50,7 +51,7 @@ namespace {
 CodeGenVisitor::CodeGenVisitor(const std::string& moduleName,
                                CodeGenMode mode,
                                std::unordered_map<std::string, bool> willReturnMap)
-	: mode(mode), willReturnMap(std::move(willReturnMap)) {
+    : mode(mode), willReturnMap(std::move(willReturnMap)) {
     context = std::make_unique<llvm::LLVMContext>();
     builder = std::make_unique<llvm::IRBuilder<>>(*context);
     module = std::make_unique<llvm::Module>(moduleName, *context);
@@ -273,6 +274,7 @@ bool CodeGenVisitor::emitRequiresChecks() {
         if (!requiresContract) {
             continue;
         }
+
         if (!emitContractCheck(requiresContract->getCondition(), "requires")) {
             logCodegen("requires check emission failed");
             return false;
@@ -369,7 +371,7 @@ llvm::Function* CodeGenVisitor::getOrCreateTopLevelFunction() {
 
     auto* funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(*context), false);
     topLevelFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main", module.get());
-    applyGeneralFunctionAttributes(topLevelFunction);
+    applyGeneralFunctionAttributes(topLevelFunction, true);
     auto* entry = llvm::BasicBlock::Create(*context, "entry", topLevelFunction);
     builder->SetInsertPoint(entry);
     return topLevelFunction;
@@ -397,12 +399,46 @@ llvm::Value* CodeGenVisitor::emitPrintValue(llvm::Value* value) {
     return builder->CreateCall(printfFn, {formatPtr, printable});
 }
 
-void CodeGenVisitor::applyGeneralFunctionAttributes(llvm::Function* function) {
+void CodeGenVisitor::applyTargetAttributes(llvm::Function* function) {
+    if (!function) return;
+
+    std::string cpu = llvm::sys::getHostCPUName().str();
+
+    llvm::StringMap<bool> featureMap;
+    featureMap = llvm::sys::getHostCPUFeatures();
+
+    std::string features;
+    for (auto& [name, enabled] : featureMap) {
+        if (!features.empty()) features += ',';
+        features += (enabled ? '+' : '-');
+        features += name.str();
+    }
+
+    function->addFnAttr("target-cpu", cpu);
+    function->addFnAttr("target-features", features);
+    function->addFnAttr("tune-cpu", cpu);
+    function->addFnAttr("no-trapping-math", "true");
+    function->addFnAttr("min-legal-vector-width", "0");
+    function->addFnAttr("frame-pointer", "none");
+}
+
+void CodeGenVisitor::applyGeneralFunctionAttributes(llvm::Function* function, bool isMain) {
     if (!function) {
         return;
     }
 
     function->addFnAttr(llvm::Attribute::NoUnwind);
+    function->addFnAttr(llvm::Attribute::NoSync);
+    function->addFnAttr(llvm::Attribute::NoFree);
+
+    function->setMemoryEffects(llvm::MemoryEffects::none());
+
+	if (isMain) {
+		function->setLinkage(llvm::Function::ExternalLinkage);
+	} else {
+		function->setLinkage(llvm::GlobalValue::InternalLinkage);
+	}
+
     if (!function->getReturnType()->isVoidTy()) {
         function->addRetAttr(llvm::Attribute::NoUndef);
     }
@@ -410,6 +446,7 @@ void CodeGenVisitor::applyGeneralFunctionAttributes(llvm::Function* function) {
     for (auto& arg : function->args()) {
         arg.addAttr(llvm::Attribute::NoUndef);
     }
+	applyTargetAttributes(function);
 }
 
 void CodeGenVisitor::applyWillReturnAttribute(llvm::Function* function) {
@@ -526,7 +563,15 @@ llvm::Value* CodeGenVisitor::visit(FunctionCallExprAST* node) {
         args.push_back(argValue);
     }
 
-    return builder->CreateCall(callee, args, callee->getReturnType()->isVoidTy() ? "" : "calltmp");
+	llvm::CallInst *call = builder->CreateCall(callee, args, callee->getReturnType()->isVoidTy() ? "" : "calltmp");
+	if (!callee->getReturnType()->isVoidTy()) {
+		call->addRetAttr(llvm::Attribute::NoUndef);
+	}
+
+	for (unsigned i = 0; i < args.size(); ++i) {
+		call->addParamAttr(i, llvm::Attribute::NoUndef);
+	}
+	return call;
 }
 
 llvm::Value* CodeGenVisitor::visit(BinaryExprAST* node) {
@@ -538,30 +583,15 @@ llvm::Value* CodeGenVisitor::visit(BinaryExprAST* node) {
 
     switch (node->getOp()) {
         case BinaryExprAST::PLUS: {
-            auto* value = builder->CreateAdd(lhs, rhs, "addtmp");
-            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
-            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
-                ExpressionRangeInferer rangeInferer;
-                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
-            }
+            auto* value = builder->CreateNSWAdd(lhs, rhs, "addtmp");
             return value;
         }
         case BinaryExprAST::MINUS: {
-            auto* value = builder->CreateSub(lhs, rhs, "subtmp");
-            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
-            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
-                ExpressionRangeInferer rangeInferer;
-                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
-            }
+            auto* value = builder->CreateNSWSub(lhs, rhs, "subtmp");
             return value;
         }
         case BinaryExprAST::MULTIPLY: {
-            auto* value = builder->CreateMul(lhs, rhs, "multmp");
-            auto* instruction = llvm::dyn_cast<llvm::Instruction>(value);
-            if (instruction && mode == CodeGenMode::Optimise && instruction->getType()->isIntegerTy(32)) {
-                ExpressionRangeInferer rangeInferer;
-                applyNoWrapFlags(instruction, rangeInferer.infer(node, currentParamRanges));
-            }
+            auto* value = builder->CreateNSWMul(lhs, rhs, "multmp");
             return value;
         }
         case BinaryExprAST::DIVIDE:
