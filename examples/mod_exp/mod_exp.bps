@@ -34,6 +34,9 @@ function i32 mulMod(i32 a, i32 b, i32 mod) {
 function i32 modExp(i32 base, i32 exp, i32 mod) {
     i32 result = 1;
     base = base % mod;
+	if (base < 0) {
+		base += mod;
+	}
     
     while (exp > 0) {
         if (exp % 2 == 1) {

@@ -1,116 +1,145 @@
 # Integer Square Root Example
 
-## `int_sqrt.bps`
-
 ### CFG (.dot)
 ```dot
 digraph "CFG for intSqrt" {
-    blueprint [label="blueprint"];
-    while_loop [label="while (low <= high)"];
-    if_mid [label="if (mid == 0)"];
-    else_if_mid [label="else if (mid <= n / mid)"];
-    exit [label="exit"];
+	blueprint [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{blueprint\l|check ensures contracts\lcheck default contracts\l|{<s0>Contract Applied|<s1>No Contract Applied}}"];
+	blueprint:s0 -> ret;
+	blueprint:s1 -> entry;
 
-    blueprint -> while_loop [label="otherwise"];
-    blueprint -> exit [label="base case"];
-    while_loop -> if_mid [label="true"];
-    while_loop -> exit [label="false"];
-    if_mid -> while_loop [label="true"];
-    if_mid -> else_if_mid [label="false"];
-    else_if_mid -> while_loop;
+	entry [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{entry\l|assert(n \>= 0);\llow = 0;\lhigh = n;\lresult = 0;\l}"];
+	entry -> while_cond;
+
+	while_cond [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{while.cond\l|br (low \<= high)\l|{<s0>T|<s1>F}}"];
+	while_cond:s0 -> while_body;
+	while_cond:s1 -> ret;
+
+	while_body [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{while.body\l|mid = low + (high - low) / 2;\lbr (mid == 0)\l|{<s0>T|<s1>F}}"];
+	while_body:s0 -> if_then;
+	while_body:s1 -> if_else_cond;
+
+	if_then [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.then\l|result = 0;\llow = 1;\l}"];
+	if_then -> if_end;
+
+	if_else_cond [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.else.cond\l|br (mid \<= n / mid)\l|{<s0>T|<s1>F}}"];
+	if_else_cond:s0 -> else_if_then;
+	if_else_cond:s1 -> else_else;
+
+	else_if_then [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{else.if.then\l|result = mid;\llow = mid + 1;\l}"];
+	else_if_then -> if_end;
+
+	else_else [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{else.else\l|high = mid - 1;\l}"];
+	else_else -> if_end;
+
+	if_end [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.end}"];
+	if_end -> while_cond;
+
+	ret [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{return\l|return result;\l}"];
 }
 ```
 
 ### Cyclomatic Complexity
-Number of Nodes = 5
-Number of Edges = 7
-Cyclomatic Complexity = E - N + 2 = 7 - 5 + 2 = 4
-
-## `int_sqrt-defensive.bps`
+Number of Nodes = 10
+Number of Edges = 13
+Cyclomatic Complexity = E - N + 2 = 13 - 10 + 2 = 5
 
 ### CFG (.dot)
 ```dot
 digraph "CFG for intSqrt" {
-    entry [label="entry"];
-    while_loop [label="while (low <= high)"];
-    if_mid [label="if (mid == 0)"];
-    else_if_mid [label="else if (mid <= n / mid)"];
-    exit [label="exit"];
+	entry [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{entry\l|assert(n \>= 0);\llow = 0;\lhigh = n;\lresult = 0;\l}"];
+	entry -> while_cond;
 
-    entry -> while_loop;
-    while_loop -> if_mid [label="true"];
-    while_loop -> exit [label="false"];
-    if_mid -> while_loop [label="true"];
-    if_mid -> else_if_mid [label="false"];
-    else_if_mid -> while_loop;
+	while_cond [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{while.cond\l|br (low \<= high)\l|{<s0>T|<s1>F}}"];
+	while_cond:s0 -> while_body;
+	while_cond:s1 -> ret;
+
+	while_body [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{while.body\l|mid = low + (high - low) / 2;\lbr (mid == 0)\l|{<s0>T|<s1>F}}"];
+	while_body:s0 -> if_then;
+	while_body:s1 -> if_else_cond;
+
+	if_then [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.then\l|result = 0;\llow = 1;\l}"];
+	if_then -> if_end;
+
+	if_else_cond [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.else.cond\l|br (mid \<= n / mid)\l|{<s0>T|<s1>F}}"];
+	if_else_cond:s0 -> else_if_then;
+	if_else_cond:s1 -> else_else;
+
+	else_if_then [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{else.if.then\l|result = mid;\llow = mid + 1;\l}"];
+	else_if_then -> if_end;
+
+	else_else [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{else.else\l|high = mid - 1;\l}"];
+	else_else -> if_end;
+
+	if_end [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{if.end}"];
+	if_end -> while_cond;
+
+	ret [shape=record, color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier", label="{return\l|return result;\l}"];
 }
 ```
 
 ### Cyclomatic Complexity
-Number of Nodes = 5
-Number of Edges = 6
-Cyclomatic Complexity = E - N + 2 = 6 - 5 + 2 = 3
+Number of Nodes = 9
+Number of Edges = 11
+Cyclomatic Complexity = E - N + 2 = 11 - 9 + 2 = 4
 
 ## `int_sqrt.ll`
 
 ### CFG (.dot)
 ```dot
-digraph "CFG for 'intSqrt' function" {
-	label="CFG for 'intSqrt' function";
+digraph "CFG for 'main' function" {
+	label="CFG for 'main' function";
 
-	Node0x5601991866d0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d24b4070", fontname="Courier",label="{entry:\l|  %eqtmp = icmp eq i32 %0, 0\l  br i1 %eqtmp, label %common.ret, label %loopbody\l|{<s0>T|<s1>F}}"];
-	Node0x5601991866d0:s0 -> Node0x560199186810;
-	Node0x5601991866d0:s1 -> Node0x560199186d40;
-	Node0x560199186810 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d24b4070", fontname="Courier",label="{common.ret:\l|  %common.ret.op = phi i32 [ 0, %entry ], [ %result.1, %ifcont ]\l  ret i32 %common.ret.op\l}"];
-	Node0x560199186d40 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{loopbody:\l|  %result.036 = phi i32 [ %result.1, %ifcont ], [ 0, %entry ]\l  %low.035 = phi i32 [ %low.1, %ifcont ], [ 0, %entry ]\l  %high.034 = phi i32 [ %high.1, %ifcont ], [ %0, %entry ]\l  %subtmp = sub i32 %high.034, %low.035\l  %divtmp = sdiv i32 %subtmp, 2\l  %addtmp = add i32 %divtmp, %low.035\l  %eqtmp9 = icmp eq i32 %addtmp, 0\l  br i1 %eqtmp9, label %ifcont, label %else\l|{<s0>T|<s1>F}}"];
-	Node0x560199186d40:s0 -> Node0x560199186f40;
-	Node0x560199186d40:s1 -> Node0x560199187c00;
-	Node0x560199187c00 [shape=record,color="#b70d28ff", style=filled, fillcolor="#bb1b2c70", fontname="Courier",label="{else:\l|  %divtmp13 = sdiv i32 %0, %addtmp\l  %letmp14.not = icmp sgt i32 %addtmp, %divtmp13\l  br i1 %letmp14.not, label %else16, label %then15\l|{<s0>T|<s1>F}}"];
-	Node0x560199187c00:s0 -> Node0x560199187c80;
-	Node0x560199187c00:s1 -> Node0x560199187e70;
-	Node0x560199186f40 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{ifcont:\l|  %high.1 = phi i32 [ %subtmp22, %else16 ], [ %high.034, %then15 ], [\l... %high.034, %loopbody ]\l  %low.1 = phi i32 [ %low.035, %else16 ], [ %addtmp20, %then15 ], [ 1,\l... %loopbody ]\l  %result.1 = phi i32 [ %result.036, %else16 ], [ %addtmp, %then15 ], [ 0,\l... %loopbody ]\l  %letmp.not = icmp sgt i32 %low.1, %high.1\l  br i1 %letmp.not, label %common.ret, label %loopbody\l|{<s0>T|<s1>F}}"];
-	Node0x560199186f40:s0 -> Node0x560199186810;
-	Node0x560199186f40:s1 -> Node0x560199186d40;
-	Node0x560199187e70 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{then15:\l|  %addtmp20 = add i32 %addtmp, 1\l  br label %ifcont\l}"];
-	Node0x560199187e70 -> Node0x560199186f40;
-	Node0x560199187c80 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{else16:\l|  %subtmp22 = add nsw i32 %addtmp, -1\l  br label %ifcont\l}"];
-	Node0x560199187c80 -> Node0x560199186f40;
+	Node0x55582635c380 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier",label="{entry:\l|  br label %loopbody.i\l}"];
+	Node0x55582635c380 -> Node0x55582635c440;
+	Node0x55582635c440 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{loopbody.i:\l|  %result.037.i = phi i32 [ 0, %entry ], [ %result.1.i, %ifcont.i ]\l  %low.036.i = phi i32 [ 0, %entry ], [ %low.1.i, %ifcont.i ]\l  %high.035.i = phi i32 [ 70, %entry ], [ %high.1.i, %ifcont.i ]\l  %subtmp.i = sub nsw i32 %high.035.i, %low.036.i\l  %divtmp34.i = lshr i32 %subtmp.i, 1\l  %addtmp.i = add nuw nsw i32 %divtmp34.i, %low.036.i\l  %eqtmp9.i = icmp eq i32 %addtmp.i, 0\l  br i1 %eqtmp9.i, label %ifcont.i, label %else.i\l|{<s0>T|<s1>F}}"];
+	Node0x55582635c440:s0 -> Node0x55582635e7f0;
+	Node0x55582635c440:s1 -> Node0x55582635f860;
+	Node0x55582635f860 [shape=record,color="#b70d28ff", style=filled, fillcolor="#bb1b2c70", fontname="Courier",label="{else.i:\l|  %divtmp13.i = udiv i32 70, %addtmp.i\l  %letmp14.not.i = icmp sgt i32 %addtmp.i, %divtmp13.i\l  br i1 %letmp14.not.i, label %else16.i, label %then15.i\l|{<s0>T|<s1>F}}"];
+	Node0x55582635f860:s0 -> Node0x55582635f8e0;
+	Node0x55582635f860:s1 -> Node0x55582635fae0;
+	Node0x55582635e7f0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{ifcont.i:\l|  %high.1.i = phi i32 [ %subtmp22.i, %else16.i ], [ %high.035.i, %then15.i\l... ], [ %high.035.i, %loopbody.i ]\l  %low.1.i = phi i32 [ %low.036.i, %else16.i ], [ %addtmp20.i, %then15.i ], [\l... 1, %loopbody.i ]\l  %result.1.i = phi i32 [ %result.037.i, %else16.i ], [ %addtmp.i, %then15.i\l... ], [ 0, %loopbody.i ]\l  %letmp.not.i = icmp sgt i32 %low.1.i, %high.1.i\l  br i1 %letmp.not.i, label %intSqrt.exit, label %loopbody.i\l|{<s0>T|<s1>F}}"];
+	Node0x55582635e7f0:s0 -> Node0x55582635e280;
+	Node0x55582635e7f0:s1 -> Node0x55582635c440;
+	Node0x55582635fae0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{then15.i:\l|  %addtmp20.i = add nuw nsw i32 %addtmp.i, 1\l  br label %ifcont.i\l}"];
+	Node0x55582635fae0 -> Node0x55582635e7f0;
+	Node0x55582635f8e0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{else16.i:\l|  %subtmp22.i = add nsw i32 %addtmp.i, -1\l  br label %ifcont.i\l}"];
+	Node0x55582635f8e0 -> Node0x55582635e7f0;
+	Node0x55582635e280 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier",label="{intSqrt.exit:\l|  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt,\l... i32 %result.1.i)\l  ret i32 0\l}"];
 }
 ```
 
 ### Cyclomatic Complexity
 Number of Nodes =  7
-Number of Edges = 10 
-Cyclomatic Complexity = E - N + 2 = 10 - 7 + 2 = 5
+Number of Edges = 9
+Cyclomatic Complexity = E - N + 2 = 9 - 7 + 2 = 4
 
 ## `int_sqrt-defensive.ll`
 
 ### CFG (.dot)
 ```dot
-digraph "CFG for 'intSqrt' function" {
-	label="CFG for 'intSqrt' function";
+digraph "CFG for 'main' function" {
+	label="CFG for 'main' function";
 
-	Node0x55985bd2f6a0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d24b4070", fontname="Courier",label="{entry:\l|  %letmp.not31 = icmp slt i32 %0, 0\l  br i1 %letmp.not31, label %loopexit, label %loopbody\l|{<s0>T|<s1>F}}"];
-	Node0x55985bd2f6a0:s0 -> Node0x55985bd2f7e0;
-	Node0x55985bd2f6a0:s1 -> Node0x55985bd2fd40;
-	Node0x55985bd2fd40 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{loopbody:\l|  %result.034 = phi i32 [ %result.1, %ifcont ], [ 0, %entry ]\l  %low.033 = phi i32 [ %low.1, %ifcont ], [ 0, %entry ]\l  %high.032 = phi i32 [ %high.1, %ifcont ], [ %0, %entry ]\l  %subtmp = sub i32 %high.032, %low.033\l  %divtmp = sdiv i32 %subtmp, 2\l  %addtmp = add i32 %divtmp, %low.033\l  %eqtmp = icmp eq i32 %addtmp, 0\l  br i1 %eqtmp, label %ifcont, label %else\l|{<s0>T|<s1>F}}"];
-	Node0x55985bd2fd40:s0 -> Node0x55985bd2ff40;
-	Node0x55985bd2fd40:s1 -> Node0x55985bd30ae0;
-	Node0x55985bd2f7e0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d24b4070", fontname="Courier",label="{loopexit:\l|  %result.0.lcssa = phi i32 [ 0, %entry ], [ %result.1, %ifcont ]\l  ret i32 %result.0.lcssa\l}"];
-	Node0x55985bd30ae0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#bb1b2c70", fontname="Courier",label="{else:\l|  %divtmp11 = sdiv i32 %0, %addtmp\l  %letmp12.not = icmp sgt i32 %addtmp, %divtmp11\l  br i1 %letmp12.not, label %else14, label %then13\l|{<s0>T|<s1>F}}"];
-	Node0x55985bd30ae0:s0 -> Node0x55985bd30b60;
-	Node0x55985bd30ae0:s1 -> Node0x55985bd30e50;
-	Node0x55985bd2ff40 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{ifcont:\l|  %high.1 = phi i32 [ %subtmp20, %else14 ], [ %high.032, %then13 ], [\l... %high.032, %loopbody ]\l  %low.1 = phi i32 [ %low.033, %else14 ], [ %addtmp18, %then13 ], [ 1,\l... %loopbody ]\l  %result.1 = phi i32 [ %result.034, %else14 ], [ %addtmp, %then13 ], [ 0,\l... %loopbody ]\l  %letmp.not = icmp sgt i32 %low.1, %high.1\l  br i1 %letmp.not, label %loopexit, label %loopbody\l|{<s0>T|<s1>F}}"];
-	Node0x55985bd2ff40:s0 -> Node0x55985bd2f7e0;
-	Node0x55985bd2ff40:s1 -> Node0x55985bd2fd40;
-	Node0x55985bd30e50 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{then13:\l|  %addtmp18 = add i32 %addtmp, 1\l  br label %ifcont\l}"];
-	Node0x55985bd30e50 -> Node0x55985bd2ff40;
-	Node0x55985bd30b60 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{else14:\l|  %subtmp20 = add nsw i32 %addtmp, -1\l  br label %ifcont\l}"];
-	Node0x55985bd30b60 -> Node0x55985bd2ff40;
+	Node0x55f0cca0a3f0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier",label="{entry:\l|  br label %loopbody.i\l}"];
+	Node0x55f0cca0a3f0 -> Node0x55f0cca0a4b0;
+	Node0x55f0cca0a4b0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{loopbody.i:\l|  %result.034.i = phi i32 [ 0, %entry ], [ %result.1.i, %ifcont.i ]\l  %low.033.i = phi i32 [ 0, %entry ], [ %low.1.i, %ifcont.i ]\l  %high.032.i = phi i32 [ 70, %entry ], [ %high.1.i, %ifcont.i ]\l  %subtmp.i = sub nsw i32 %high.032.i, %low.033.i\l  %divtmp31.i = lshr i32 %subtmp.i, 1\l  %addtmp.i = add nuw nsw i32 %divtmp31.i, %low.033.i\l  %eqtmp.i = icmp eq i32 %addtmp.i, 0\l  br i1 %eqtmp.i, label %ifcont.i, label %else.i\l|{<s0>T|<s1>F}}"];
+	Node0x55f0cca0a4b0:s0 -> Node0x55f0cca0c840;
+	Node0x55f0cca0a4b0:s1 -> Node0x55f0cca0d8a0;
+	Node0x55f0cca0d8a0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#bb1b2c70", fontname="Courier",label="{else.i:\l|  %divtmp11.i = udiv i32 70, %addtmp.i\l  %letmp12.not.i = icmp sgt i32 %addtmp.i, %divtmp11.i\l  br i1 %letmp12.not.i, label %else14.i, label %then13.i\l|{<s0>T|<s1>F}}"];
+	Node0x55f0cca0d8a0:s0 -> Node0x55f0cca0d920;
+	Node0x55f0cca0d8a0:s1 -> Node0x55f0cca0db20;
+	Node0x55f0cca0c840 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870", fontname="Courier",label="{ifcont.i:\l|  %high.1.i = phi i32 [ %subtmp20.i, %else14.i ], [ %high.032.i, %then13.i\l... ], [ %high.032.i, %loopbody.i ]\l  %low.1.i = phi i32 [ %low.033.i, %else14.i ], [ %addtmp18.i, %then13.i ], [\l... 1, %loopbody.i ]\l  %result.1.i = phi i32 [ %result.034.i, %else14.i ], [ %addtmp.i, %then13.i\l... ], [ 0, %loopbody.i ]\l  %letmp.not.i = icmp sgt i32 %low.1.i, %high.1.i\l  br i1 %letmp.not.i, label %intSqrt.exit, label %loopbody.i\l|{<s0>T|<s1>F}}"];
+	Node0x55f0cca0c840:s0 -> Node0x55f0cca0c2d0;
+	Node0x55f0cca0c840:s1 -> Node0x55f0cca0a4b0;
+	Node0x55f0cca0db20 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{then13.i:\l|  %addtmp18.i = add nuw nsw i32 %addtmp.i, 1\l  br label %ifcont.i\l}"];
+	Node0x55f0cca0db20 -> Node0x55f0cca0c840;
+	Node0x55f0cca0d920 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#c32e3170", fontname="Courier",label="{else14.i:\l|  %subtmp20.i = add nsw i32 %addtmp.i, -1\l  br label %ifcont.i\l}"];
+	Node0x55f0cca0d920 -> Node0x55f0cca0c840;
+	Node0x55f0cca0c2d0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#d6524470", fontname="Courier",label="{intSqrt.exit:\l|  %0 = tail call i32 (ptr, ...) @printf(ptr nonnull dereferenceable(1) @fmt,\l... i32 %result.1.i)\l  ret i32 0\l}"];
 }
 ```
 
 ### Cyclomatic Complexity
 Number of Nodes =  7
-Number of Edges = 10 
-Cyclomatic Complexity = E - N + 2 = 10 - 7 + 2 = 5
+Number of Edges = 9
+Cyclomatic Complexity = E - N + 2 = 9 - 7 + 2 = 4
