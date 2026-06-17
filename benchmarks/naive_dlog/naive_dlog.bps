@@ -3,6 +3,7 @@ blueprint mulMod {
     output: i32;
     default: a == 0 ==> 0;
     default: b == 0 ==> 0;
+	requires: a >= 0;
     requires: b >= 0 && mod > 1;
     ensures: mulMod >= 0 && mulMod < mod;
 }
@@ -11,6 +12,7 @@ blueprint modExp {
     input: base: i32, exp: i32, mod: i32;
     output: i32;
     default: exp == 0 ==> 1;
+	requires: base >= 0;
     requires: exp >= 0 && mod > 1;
     ensures: modExp >= 0 && modExp < mod;
 }
@@ -26,9 +28,6 @@ blueprint discreteLog {
 function i32 mulMod(i32 a, i32 b, i32 mod) {
     i32 result = 0;
     a = a % mod;
-    if (a < 0) {
-        a = a + mod;
-    }
 
     while (b > 0) {
         if (b % 2 == 1) {
@@ -44,9 +43,6 @@ function i32 mulMod(i32 a, i32 b, i32 mod) {
 function i32 modExp(i32 base, i32 exp, i32 mod) {
     i32 result = 1;
     base = base % mod;
-    if (base < 0) {
-        base = base + mod;
-    }
 
     while (exp > 0) {
         if (exp % 2 == 1) {

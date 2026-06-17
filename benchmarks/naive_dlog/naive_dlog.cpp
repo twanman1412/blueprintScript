@@ -8,7 +8,7 @@
 #include <cstdint>
 
 int32_t mulMod(int32_t a, int32_t b, const int32_t mod) 
-    pre(b >= 0 && mod > 1)
+    pre(a >= 0 && b >= 0 && mod > 1)
     post(r: r >= 0 && r < mod)
 {
     if (a == 0) return 0;
@@ -16,9 +16,6 @@ int32_t mulMod(int32_t a, int32_t b, const int32_t mod)
 
     int32_t result = 0;
     a = a % mod;
-    if (a < 0) {
-        a = a + mod;
-    }
 
     while (b > 0) {
         if (b % 2 == 1) {
@@ -32,16 +29,13 @@ int32_t mulMod(int32_t a, int32_t b, const int32_t mod)
 }
 
 int32_t modExp(int32_t base, int32_t exp, const int32_t mod)
-    pre(exp >= 0 && mod > 1)
+    pre(base >= 0 && exp >= 0 && mod > 1)
     post(r: r >= 0 && r < mod)
 {
     if (exp == 0) return 1;
 
     int32_t result = 1;
     base = base % mod;
-    if (base < 0) {
-        base = base + mod;
-    }
 
     while (exp > 0) {
         if (exp % 2 == 1) {

@@ -1,15 +1,13 @@
-; ModuleID = 'blueprint_module'
+; ModuleID = 'fibonacci.raw.ll'
 source_filename = "blueprint_module"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
 
 @fmt = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
 ; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none)
 define internal fastcc noundef range(i32 0, -2147483648) i32 @fibonacci(i32 noundef range(i32 0, 46) %0) unnamed_addr #0 {
 entry:
-  %switch19 = icmp samesign ult i32 %0, 2
-  br i1 %switch19, label %common.ret, label %default.next5
+  %switch10 = icmp samesign ult i32 %0, 2
+  br i1 %switch10, label %common.ret, label %default.next5
 
 common.ret:                                       ; preds = %default.next5, %entry
   %accumulator.tr.lcssa = phi i32 [ 0, %entry ], [ %addtmp, %default.next5 ]
@@ -18,12 +16,12 @@ common.ret:                                       ; preds = %default.next5, %ent
   ret i32 %accumulator.ret.tr
 
 default.next5:                                    ; preds = %entry, %default.next5
-  %.tr21 = phi i32 [ %subtmp8, %default.next5 ], [ %0, %entry ]
-  %accumulator.tr20 = phi i32 [ %addtmp, %default.next5 ], [ 0, %entry ]
-  %subtmp = add nsw i32 %.tr21, -1
+  %.tr12 = phi i32 [ %subtmp8, %default.next5 ], [ %0, %entry ]
+  %accumulator.tr11 = phi i32 [ %addtmp, %default.next5 ], [ 0, %entry ]
+  %subtmp = add nsw i32 %.tr12, -1
   %calltmp = tail call fastcc noundef i32 @fibonacci(i32 noundef %subtmp)
-  %subtmp8 = add nsw i32 %.tr21, -2
-  %addtmp = add nuw nsw i32 %calltmp, %accumulator.tr20
+  %subtmp8 = add nsw i32 %.tr12, -2
+  %addtmp = add nuw nsw i32 %calltmp, %accumulator.tr11
   %switch = icmp ult i32 %subtmp8, 2
   br i1 %switch, label %common.ret, label %default.next5
 }
